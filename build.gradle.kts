@@ -8,7 +8,7 @@ plugins {
     java
     `java-library`
     jacoco
-    id("org.springframework.boot") version "3.3.9"
+    id("org.springframework.boot") version "3.5.5"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
     id("pmd")
