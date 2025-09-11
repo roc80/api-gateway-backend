@@ -89,11 +89,29 @@ tasks.withType<Test> {
 }
 
 tasks.test {
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
+    dependsOn(tasks.test)
+}
+
+// 修复任务依赖问题 - 使用字符串避免任务解析顺序问题
+tasks.compileJava {
+    dependsOn("jooqCodegen")
+}
+
+tasks.compileTestJava {
+    dependsOn("jooqCodegen")
+}
+
+// 修复 Spotless 任务依赖 - 使用正确的任务名称和字符串方式
+tasks.named("spotlessApply") {
+    dependsOn("jooqCodegen")
+}
+
+tasks.named("spotlessCheck") {
+    dependsOn("jooqCodegen")
 }
 
 jacoco {
@@ -111,22 +129,23 @@ pmd {
 
 spotless {
     format("misc") {
-        // define the files to apply `misc` to
         target("*.gradle.kts", "*.md", ".gitignore")
-        // define the steps to apply to those files
         trimTrailingWhitespace()
         leadingTabsToSpaces()
         endWithNewline()
     }
 
     java {
+        // 只格式化源码目录，明确排除生成的代码
+        target("src/main/java/**/*.java", "src/test/java/**/*.java")
+        targetExclude("build/generated-sources/**")
         googleJavaFormat("1.28.0").reflowLongStrings()
         formatAnnotations()
     }
 
     kotlinGradle {
-        target("*.gradle.kts") // default target for kotlinGradle
-        ktlint() // or ktfmt() or prettier()
+        target("*.gradle.kts")
+        ktlint()
     }
 }
 
@@ -163,12 +182,6 @@ jooq {
                         value = "true"
                     }
                 }
-                forcedTypes {
-                    forcedType {
-                        isJsonConverter = true
-                        includeTypes = "(?i:JSON|JSONB)"
-                    }
-                }
             }
             generate {
                 isDaos = true
@@ -181,6 +194,7 @@ jooq {
             }
             target {
                 packageName = "org.jooq.generated"
+                directory = "build/generated-sources/jooq"
             }
         }
     }
