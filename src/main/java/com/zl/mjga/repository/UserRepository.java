@@ -1,6 +1,6 @@
 package com.zl.mjga.repository;
 
-import static org.jooq.generated.mjga.tables.User.USER;
+import static org.jooq.generated.api_gateway.tables.User.USER;
 import static org.jooq.impl.DSL.*;
 
 import com.zl.mjga.dto.PageRequestDto;
@@ -10,7 +10,7 @@ import com.zl.mjga.dto.urp.UserQueryDto;
 import com.zl.mjga.dto.urp.UserRolePermissionDto;
 import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.generated.mjga.tables.daos.*;
+import org.jooq.generated.api_gateway.tables.daos.*;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

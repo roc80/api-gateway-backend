@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jooq.Record;
 import org.jooq.Result;
-import org.jooq.generated.mjga.tables.pojos.*;
+import org.jooq.generated.api_gateway.tables.pojos.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

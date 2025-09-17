@@ -9,7 +9,7 @@ import com.zl.mjga.service.UserRolePermissionService;
 import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.jooq.generated.mjga.tables.pojos.User;
+import org.jooq.generated.api_gateway.tables.pojos.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
