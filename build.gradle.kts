@@ -57,6 +57,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.17.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+    implementation("com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.4.0")
     implementation("org.jooq:jooq-meta:$jooqVersion")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
