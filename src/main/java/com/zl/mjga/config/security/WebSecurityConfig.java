@@ -1,9 +1,9 @@
 package com.zl.mjga.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -15,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.*;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
@@ -24,61 +23,60 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-  private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
-  private final Jwt jwt;
+    private final Jwt jwt;
 
-  private final CorsConfigurationSource corsConfigurationSource;
+    private final CorsConfigurationSource corsConfigurationSource;
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-  @Bean
-  public AuthenticationManager authenticationManager(
-      AuthenticationConfiguration authenticationConfiguration) throws Exception {
-    return authenticationConfiguration.getAuthenticationManager();
-  }
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
-  @Bean
-  public RequestMatcher publicEndPointMatcher() {
-    return new OrRequestMatcher(
-        new AntPathRequestMatcher("/auth/sign-in", HttpMethod.POST.name()),
-        new AntPathRequestMatcher("/auth/sign-up", HttpMethod.POST.name()),
-        new AntPathRequestMatcher("/v3/api-docs/**", HttpMethod.GET.name()),
-        new AntPathRequestMatcher("/swagger-ui/**", HttpMethod.GET.name()),
-        new AntPathRequestMatcher("/swagger-ui.html", HttpMethod.GET.name()),
-        new AntPathRequestMatcher("/error"));
-  }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   @Value("${spring.profiles.active}") String activeProfile) throws Exception {
+        RestfulAuthenticationEntryPointHandler restfulAuthenticationEntryPointHandler =
+                new RestfulAuthenticationEntryPointHandler();
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    RestfulAuthenticationEntryPointHandler restfulAuthenticationEntryPointHandler =
-        new RestfulAuthenticationEntryPointHandler();
-    /*
-    <Stateless API CSRF protection>
-    http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
-    */
-    http.cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource));
-    http.csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(
-            authorize ->
-                authorize
-                    .requestMatchers(publicEndPointMatcher())
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
-        .exceptionHandling(
-            (exceptionHandling) ->
-                exceptionHandling
-                    .accessDeniedHandler(restfulAuthenticationEntryPointHandler)
-                    .authenticationEntryPoint(restfulAuthenticationEntryPointHandler))
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .addFilterAt(
-            new JwtAuthenticationFilter(jwt, userDetailsService),
-            UsernamePasswordAuthenticationFilter.class);
-    return http.build();
-  }
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> {
+                    // 公共接口
+                    auth.requestMatchers(
+                            "/auth/sign-in",
+                            "/auth/sign-up",
+                            "/error"
+                    ).permitAll();
+
+                    if ("dev".equalsIgnoreCase(activeProfile) || "test".equalsIgnoreCase(activeProfile)) {
+                        auth.requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/doc.html",
+                                "/webjars/**"
+                        ).permitAll();
+                    }
+
+                    auth.anyRequest().authenticated();
+                })
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(restfulAuthenticationEntryPointHandler)
+                        .authenticationEntryPoint(restfulAuthenticationEntryPointHandler)
+                )
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterAt(new JwtAuthenticationFilter(jwt, userDetailsService),
+                        UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
 }

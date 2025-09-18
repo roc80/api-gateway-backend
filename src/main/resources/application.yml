@@ -16,6 +16,7 @@ cors:
   allowedMethods: ${ALLOWED_METHODS}
   allowedHeaders: ${ALLOWED_HEADERS}
   allowedExposeHeaders: ${ALLOWED_EXPOSE_HEADERS}
+
 spring:
   datasource:
     url: jdbc:postgresql://${DATABASE_HOST_PORT}/${DATABASE_DB}
@@ -29,22 +30,15 @@ spring:
 springdoc:
   api-docs:
     path: /v3/api-docs
-  group-configs:
-    - group: 'default'
-      display-name: '测试'
-      paths-to-match: '/**'
-      packages-to-scan: com.zl.mjga
   swagger-ui:
-    path: /doc.html
+    path: /swagger-ui.html
     tags-sorter: alpha
     operations-sorter: alpha
 
 knife4j:
   setting:
     language: zh_cn
-  basic:
-    enable: true
-
+  enable: true
 
 jwt:
   secret: ${JWT_SECRET:secret}
