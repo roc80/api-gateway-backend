@@ -225,3 +225,5 @@ Temporary Items
 logs
 db.d/store/*
 .git
+
+.claude

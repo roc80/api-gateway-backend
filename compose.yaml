@@ -1,26 +1,31 @@
+version: '3.9'
+
 services:
-  database:
-    image: 'postgres:17.5'
-    container_name: database
-    hostname: database
+  postgres:
+    image: postgres:17.5
+    container_name: ${COMPOSE_PROJECT_NAME}-postgres
+    hostname: postgres
     environment:
       POSTGRES_DB: ${DATABASE_DB}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      - ${DATABASE_EXPOSE_PORT}:5432
+      - "${DATABASE_EXPOSE_PORT}:5432"
     volumes:
-      - ${DATABASE_STORE}:/var/lib/postgresql/data
+      # 左边是宿主机路径，你要改成你的真实路径
+      - "D:/docker/store/api-gateway/db:${DATABASE_STORE}"
     restart: always
+    networks:
+      - backend
+
   web:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      extra_hosts:
-        - host.docker.internal:host-gateway
-    container_name: web
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}-web
     hostname: web
     environment:
+      SPRING_PROFILES_ACTIVE: "dev"
       LOG_PATH: ${LOG_PATH}
       DATABASE_DB: ${DATABASE_DB}
       DATABASE_DEFAULT_SCHEMA: ${DATABASE_DEFAULT_SCHEMA}
@@ -32,11 +37,15 @@ services:
       ALLOWED_HEADERS: ${ALLOWED_HEADERS}
       ALLOWED_EXPOSE_HEADERS: ${ALLOWED_EXPOSE_HEADERS}
     depends_on:
-      - database
+      - postgres
     ports:
-      - ${WEB_EXPOSE_PORT}:8080
-    extra_hosts:
-      - host.docker.internal:host-gateway
+      - "${WEB_EXPOSE_PORT}:8080"
     volumes:
-      - ${LOG_PATH}:/var/log
+      - "D:/docker/store/api-gateway/log:${LOG_PATH}"
     restart: always
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
