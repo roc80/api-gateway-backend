@@ -20,8 +20,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     log.error("Business Error Handled  ===> ", ex);
     ErrorResponseException errorResponseException =
         new ErrorResponseException(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()),
+            HttpStatus.BAD_REQUEST,
+            ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage()),
             ex.getCause());
     return handleExceptionInternal(
         errorResponseException,
