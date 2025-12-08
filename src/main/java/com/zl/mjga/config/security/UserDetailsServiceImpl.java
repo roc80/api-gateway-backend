@@ -32,6 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         true,
         true,
         userRolePermissionDto.getPermissions().stream()
+            .filter(permission -> permission.getCode() != null && !permission.getCode().trim().isEmpty())
             .map((permission) -> new SimpleGrantedAuthority(permission.getCode()))
             .collect(Collectors.toSet()));
   }

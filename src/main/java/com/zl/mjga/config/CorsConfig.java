@@ -13,6 +13,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
+  @Value("${cors.allowedOriginPatterns}")
+  private String allowedOriginPatterns;
+
   @Value("${cors.allowedOrigins}")
   private String allowedOrigins;
 
@@ -33,6 +36,7 @@ public class CorsConfig implements WebMvcConfigurer {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOriginPatterns(Arrays.asList(allowedOriginPatterns.split(",")));
     configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
     configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
     configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));

@@ -1,0 +1,14 @@
+cors:
+  allowedOriginPatterns: http://localhost:*
+  allowedOrigins: http://localhost:8000
+  allowedMethods: GET,POST,PUT,DELETE,OPTIONS
+  allowedHeaders: "*"
+  allowedExposeHeaders: "*"
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/api_gateway
+    username: postgres
+    password: 123456
+  flyway:
+    default-schema: public
