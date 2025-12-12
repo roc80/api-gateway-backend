@@ -27,10 +27,10 @@ public class SortByDALTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO mjga.user (id, username, password) VALUES (1,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (1,"
                         + " 'testA','5EUX1AIlV09n2o')",
-                "INSERT INTO mjga.user (id, username,password) VALUES (2, 'testB','NTjRCeUq2EqCy')",
-                "INSERT INTO mjga.user (id, username,password) VALUES (3,"
+                "INSERT INTO api_gateway.user (id, username,password) VALUES (2, 'testB','NTjRCeUq2EqCy')",
+                "INSERT INTO api_gateway.user (id, username,password) VALUES (3,"
                         + " 'testC','qFVVFvPqs291k10')",
             })
     void userPageFetchWithNoSort() {
@@ -45,10 +45,10 @@ public class SortByDALTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO mjga.user (id, username, password) VALUES (1, 'testA','1')",
-                "INSERT INTO mjga.user (id, username,password) VALUES (2, 'testB','2')",
-                "INSERT INTO mjga.user (id, username,password) VALUES (3, 'testC','3')",
-                "INSERT INTO mjga.user (id, username,password) VALUES (4, 'testD','3')",
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (1, 'testA','1')",
+                "INSERT INTO api_gateway.user (id, username,password) VALUES (2, 'testB','2')",
+                "INSERT INTO api_gateway.user (id, username,password) VALUES (3, 'testC','3')",
+                "INSERT INTO api_gateway.user (id, username,password) VALUES (4, 'testD','3')",
             })
     void userPageFetchWithSort() {
         UserQueryDto rbacQueryDto = new UserQueryDto("test");

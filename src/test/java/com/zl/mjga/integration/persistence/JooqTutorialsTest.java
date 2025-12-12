@@ -22,9 +22,9 @@ public class JooqTutorialsTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO mjga.user (id, username, password) VALUES (1,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (1,"
                         + " 'testUserA','5EUX1AIlV09n2o')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (2,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (2,"
                         + " 'testUserB','lbHHwHjTzpOiRHTs')"
             })
     void queryWithDsl() {
@@ -64,9 +64,9 @@ public class JooqTutorialsTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO mjga.user (id, username, password) VALUES (1,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (1,"
                         + " 'testUserA','5EUX1AIlV09n2o')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (2,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (2,"
                         + " 'testUserB','lbHHwHjTzpOiRHTs')"
             })
     void deleteWithOrmFeel() {
@@ -80,15 +80,15 @@ public class JooqTutorialsTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO mjga.user (id, username, password) VALUES (1,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (1,"
                         + " 'testUserA','5EUX1AIlV09n2o')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (2,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (2,"
                         + " 'testUserB','lbHHwHjTzpOiRHTs')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (3,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (3,"
                         + " 'testUserC','yF25WscLYmA8')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (4,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (4,"
                         + " 'testUserD','yF25WscLYmA8')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (5,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (5,"
                         + " 'testUserE','x60FelJjyd0B')"
             })
     void pagingQuery() {
@@ -102,15 +102,15 @@ public class JooqTutorialsTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO mjga.user (id, username, password) VALUES (1,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (1,"
                         + " 'testUserA','5EUX1AIlV09n2o')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (2,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (2,"
                         + " 'testUserB','lbHHwHjTzpOiRHTs')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (3,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (3,"
                         + " 'testUserC','yF25WscLYmA8')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (4,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (4,"
                         + " 'testUserD','yF25WscLYmA8')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (5,"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (5,"
                         + " 'testUserE','x60FelJjyd0B')"
             })
     void pagingSortQuery() {
@@ -129,11 +129,11 @@ public class JooqTutorialsTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO mjga.user (id, username, password) VALUES (1, 'testUserA','a')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (2, 'testUserB','b')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (3, 'testUserC','c')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (4, 'testUserD','c')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (5, 'testUserE','c')"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (1, 'testUserA','a')",
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (2, 'testUserB','b')",
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (3, 'testUserC','c')",
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (4, 'testUserD','c')",
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (5, 'testUserE','c')"
             })
     void fetchAndTiesQuery() {
         List<User> users =
@@ -152,11 +152,11 @@ public class JooqTutorialsTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO mjga.user (id, username, password) VALUES (1, 'testUserA','a')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (2, 'testUserB','b')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (3, 'testUserC','c')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (4, 'testUserD','e')",
-                "INSERT INTO mjga.user (id, username, password) VALUES (5, 'testUserE','f')"
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (1, 'testUserA','a')",
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (2, 'testUserB','b')",
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (3, 'testUserC','c')",
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (4, 'testUserD','e')",
+                "INSERT INTO api_gateway.user (id, username, password) VALUES (5, 'testUserE','f')"
             })
     void windowFunctionQuery() {
         Result<Record> resultWithWindow =
