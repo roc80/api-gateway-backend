@@ -1,4 +1,4 @@
-FROM bellsoft/liberica-openjdk-alpine:17 AS builder
+FROM bellsoft/liberica-openjdk-alpine:21 AS builder
 
 ENV GRADLE_USER_HOME=/cache
 WORKDIR /workspace
@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/cache \
 # ---------------------------------------------------
 # Runtime 镜像（更小体积）
 # ---------------------------------------------------
-FROM bellsoft/liberica-openjdk-alpine:17 AS runner
+FROM bellsoft/liberica-openjdk-alpine:21 AS runner
 WORKDIR /app
 
 COPY --from=builder /workspace/build/libs/*.jar app.jar
