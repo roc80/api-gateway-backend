@@ -21,42 +21,41 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PermissionRepository extends PermissionDao {
 
-  @Autowired
-  public PermissionRepository(Configuration configuration) {
-    super(configuration);
-  }
+    @Autowired
+    public PermissionRepository(Configuration configuration) {
+        super(configuration);
+    }
 
-  public Result<Record> pageFetchPermissionBy(
-      PageRequestDto pageRequestDto, PermissionQueryDto permissionQueryDto) {
-    return ctx()
-        .select(asterisk(), DSL.count().over().as("total_permission"))
-        .from(PERMISSION)
-        .where(
-            CollectionUtils.isEmpty(permissionQueryDto.getPermissionIdList())
-                ? noCondition()
-                : PERMISSION.ID.in(permissionQueryDto.getPermissionIdList()))
-        .and(
-            permissionQueryDto.getPermissionId() == null
-                ? noCondition()
-                : PERMISSION.ID.eq(permissionQueryDto.getPermissionId()))
-        .and(
-            StringUtils.isEmpty(permissionQueryDto.getPermissionName())
-                ? noCondition()
-                : PERMISSION.NAME.like("%" + permissionQueryDto.getPermissionName() + "%"))
-        .and(
-            StringUtils.isEmpty(permissionQueryDto.getPermissionName())
-                ? noCondition()
-                : PERMISSION.CODE.eq(permissionQueryDto.getPermissionCode()))
-        .orderBy(pageRequestDto.getSortFields())
-        .limit(pageRequestDto.getSize())
-        .offset(pageRequestDto.getOffset())
-        .fetch();
-  }
+    public Result<Record> pageFetchPermissionBy(
+            PageRequestDto pageRequestDto, PermissionQueryDto permissionQueryDto) {
+        return ctx().select(asterisk(), DSL.count().over().as("total_permission"))
+                .from(PERMISSION)
+                .where(
+                        CollectionUtils.isEmpty(permissionQueryDto.getPermissionIdList())
+                                ? noCondition()
+                                : PERMISSION.ID.in(permissionQueryDto.getPermissionIdList()))
+                .and(
+                        permissionQueryDto.getPermissionId() == null
+                                ? noCondition()
+                                : PERMISSION.ID.eq(permissionQueryDto.getPermissionId()))
+                .and(
+                        StringUtils.isEmpty(permissionQueryDto.getPermissionName())
+                                ? noCondition()
+                                : PERMISSION.NAME.like(
+                                        "%" + permissionQueryDto.getPermissionName() + "%"))
+                .and(
+                        StringUtils.isEmpty(permissionQueryDto.getPermissionName())
+                                ? noCondition()
+                                : PERMISSION.CODE.eq(permissionQueryDto.getPermissionCode()))
+                .orderBy(pageRequestDto.getSortFields())
+                .limit(pageRequestDto.getSize())
+                .offset(pageRequestDto.getOffset())
+                .fetch();
+    }
 
-  public List<Permission> selectByPermissionIdIn(List<Long> permissionIdList) {
-    return ctx()
-        .selectFrom(PERMISSION)
-        .where(PERMISSION.ID.in(permissionIdList))
-        .fetchInto(Permission.class);
-  }
+    public List<Permission> selectByPermissionIdIn(List<Long> permissionIdList) {
+        return ctx().selectFrom(PERMISSION)
+                .where(PERMISSION.ID.in(permissionIdList))
+                .fetchInto(Permission.class);
+    }
 }

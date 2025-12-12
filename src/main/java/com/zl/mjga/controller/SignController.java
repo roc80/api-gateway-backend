@@ -16,28 +16,28 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class SignController {
 
-  private final SignService signService;
+    private final SignService signService;
 
-  private final Jwt jwt;
+    private final Jwt jwt;
 
-  @ResponseStatus(HttpStatus.OK)
-  @PostMapping("/sign-in")
-  void signIn(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      @RequestBody @Valid SignInDto signInDto) {
-    jwt.makeToken(request, response, String.valueOf(signService.signIn(signInDto)));
-  }
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/sign-in")
+    void signIn(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody @Valid SignInDto signInDto) {
+        jwt.makeToken(request, response, String.valueOf(signService.signIn(signInDto)));
+    }
 
-  @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping("/sign-up")
-  void signUp(@RequestBody @Valid SignUpDto signUpDto) {
-    signService.signUp(signUpDto);
-  }
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/sign-up")
+    void signUp(@RequestBody @Valid SignUpDto signUpDto) {
+        signService.signUp(signUpDto);
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @PostMapping("/sign-out")
-  void signOut(HttpServletRequest request, HttpServletResponse response) {
-    jwt.removeToken(request, response);
-  }
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/sign-out")
+    void signOut(HttpServletRequest request, HttpServletResponse response) {
+        jwt.removeToken(request, response);
+    }
 }

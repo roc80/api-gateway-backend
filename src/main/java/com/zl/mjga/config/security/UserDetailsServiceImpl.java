@@ -15,25 +15,28 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-  private final UserRolePermissionService userRolePermissionService;
+    private final UserRolePermissionService userRolePermissionService;
 
-  @Override
-  public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-    UserRolePermissionDto userRolePermissionDto =
-        userRolePermissionService.queryUniqueUserWithRolePermission(Long.valueOf(id));
-    if (userRolePermissionDto == null) {
-      throw new UsernameNotFoundException(String.format("uid %s user not found", id));
+    @Override
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+        UserRolePermissionDto userRolePermissionDto =
+                userRolePermissionService.queryUniqueUserWithRolePermission(Long.valueOf(id));
+        if (userRolePermissionDto == null) {
+            throw new UsernameNotFoundException(String.format("uid %s user not found", id));
+        }
+        return new User(
+                userRolePermissionDto.getUsername(),
+                userRolePermissionDto.getPassword(),
+                userRolePermissionDto.getEnable(),
+                true,
+                true,
+                true,
+                userRolePermissionDto.getPermissions().stream()
+                        .filter(
+                                permission ->
+                                        permission.getCode() != null
+                                                && !permission.getCode().trim().isEmpty())
+                        .map((permission) -> new SimpleGrantedAuthority(permission.getCode()))
+                        .collect(Collectors.toSet()));
     }
-    return new User(
-        userRolePermissionDto.getUsername(),
-        userRolePermissionDto.getPassword(),
-        userRolePermissionDto.getEnable(),
-        true,
-        true,
-        true,
-        userRolePermissionDto.getPermissions().stream()
-            .filter(permission -> permission.getCode() != null && !permission.getCode().trim().isEmpty())
-            .map((permission) -> new SimpleGrantedAuthority(permission.getCode()))
-            .collect(Collectors.toSet()));
-  }
 }

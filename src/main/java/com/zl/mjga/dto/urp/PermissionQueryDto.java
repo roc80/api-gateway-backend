@@ -8,9 +8,9 @@ import lombok.*;
 @Data
 public class PermissionQueryDto {
 
-  private Long roleId;
-  private Long permissionId;
-  private String permissionCode;
-  private String permissionName;
-  private List<Long> permissionIdList;
+    private Long roleId;
+    private Long permissionId;
+    private String permissionCode;
+    private String permissionName;
+    private List<Long> permissionIdList;
 }

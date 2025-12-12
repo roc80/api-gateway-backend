@@ -8,9 +8,9 @@ import lombok.*;
 @Data
 public class RoleQueryDto {
 
-  private Long userId;
-  private Long roleId;
-  private String roleCode;
-  private String roleName;
-  private List<Long> roleIdList;
+    private Long userId;
+    private Long roleId;
+    private String roleCode;
+    private String roleName;
+    private List<Long> roleIdList;
 }

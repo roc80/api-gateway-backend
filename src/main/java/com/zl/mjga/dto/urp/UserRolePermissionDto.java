@@ -13,21 +13,21 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 public class UserRolePermissionDto {
-  private Long id;
-  private String username;
+    private Long id;
+    private String username;
 
-  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-  private String password;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
 
-  private Boolean enable;
-  private List<RoleDto> roles = new LinkedList<>();
+    private Boolean enable;
+    private List<RoleDto> roles = new LinkedList<>();
 
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-  private OffsetDateTime createTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private OffsetDateTime createTime;
 
-  public Set<PermissionDto> getPermissions() {
-    return roles.stream()
-        .flatMap((roleDto) -> roleDto.getPermissions().stream())
-        .collect(Collectors.toSet());
-  }
+    public Set<PermissionDto> getPermissions() {
+        return roles.stream()
+                .flatMap((roleDto) -> roleDto.getPermissions().stream())
+                .collect(Collectors.toSet());
+    }
 }

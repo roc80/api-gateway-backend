@@ -14,18 +14,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CacheConfig {
 
-  public static final String VERIFY_CODE = "verifyCode";
+    public static final String VERIFY_CODE = "verifyCode";
 
-  @Bean
-  public CacheManager cacheManager() {
-    SimpleCacheManager cacheManager = new SimpleCacheManager();
-    cacheManager.setCaches(List.of(verifyCodeCache()));
-    return cacheManager;
-  }
+    @Bean
+    public CacheManager cacheManager() {
+        SimpleCacheManager cacheManager = new SimpleCacheManager();
+        cacheManager.setCaches(List.of(verifyCodeCache()));
+        return cacheManager;
+    }
 
-  private CaffeineCache verifyCodeCache() {
-    return new CaffeineCache(
-        VERIFY_CODE,
-        Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(60, TimeUnit.SECONDS).build());
-  }
+    private CaffeineCache verifyCodeCache() {
+        return new CaffeineCache(
+                VERIFY_CODE,
+                Caffeine.newBuilder()
+                        .maximumSize(1000)
+                        .expireAfterWrite(60, TimeUnit.SECONDS)
+                        .build());
+    }
 }

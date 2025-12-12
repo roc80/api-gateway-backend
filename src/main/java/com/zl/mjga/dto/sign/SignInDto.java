@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 public class SignInDto {
 
-  @NotEmpty private String username;
+    @NotEmpty private String username;
 
-  @NotEmpty private String password;
+    @NotEmpty private String password;
 }

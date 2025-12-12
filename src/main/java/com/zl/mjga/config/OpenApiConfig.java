@@ -12,16 +12,15 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info()
-                        .title("API Gateway")
-                        .version("1.0")
-                        .description("API Gateway 接口文档")
-                        .contact(new Contact()
-                                .name("roc")
-                                .url("https://github.com/roc80")
-                                .email("lipeng1080@gmail.com")
-                        )
-                );
+                .info(
+                        new Info()
+                                .title("API Gateway")
+                                .version("1.0")
+                                .description("API Gateway 接口文档")
+                                .contact(
+                                        new Contact()
+                                                .name("roc")
+                                                .url("https://github.com/roc80")
+                                                .email("lipeng1080@gmail.com")));
     }
-
 }

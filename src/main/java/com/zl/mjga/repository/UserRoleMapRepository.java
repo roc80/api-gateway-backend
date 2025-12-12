@@ -11,13 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class UserRoleMapRepository extends UserRoleMapDao {
 
-  @Autowired
-  public UserRoleMapRepository(Configuration configuration) {
-    super(configuration);
-  }
+    @Autowired
+    public UserRoleMapRepository(Configuration configuration) {
+        super(configuration);
+    }
 
-  @Transactional
-  public void deleteByUserId(Long userId) {
-    ctx().deleteFrom(USER_ROLE_MAP).where(USER_ROLE_MAP.USER_ID.eq(userId)).execute();
-  }
+    @Transactional
+    public void deleteByUserId(Long userId) {
+        ctx().deleteFrom(USER_ROLE_MAP).where(USER_ROLE_MAP.USER_ID.eq(userId)).execute();
+    }
 }

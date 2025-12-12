@@ -35,88 +35,89 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({WebSecurityConfig.class, HttpFireWallConfig.class})
 public class AuthenticationAndAuthorityTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-  @MockBean private SignService signService;
+    @MockBean private SignService signService;
 
-  @MockBean private Jwt jwt;
+    @MockBean private Jwt jwt;
 
-  @MockBean private UserDetailsServiceImpl userDetailsService;
+    @MockBean private UserDetailsServiceImpl userDetailsService;
 
-  @MockBean private UserRolePermissionService userRolePermissionService;
+    @MockBean private UserRolePermissionService userRolePermissionService;
 
-  @MockBean private UserRepository userRepository;
-  @MockBean private RoleRepository roleRepository;
+    @MockBean private UserRepository userRepository;
+    @MockBean private RoleRepository roleRepository;
 
-  @Test
-  public void givenRequestOnPublicService_shouldSucceedWith200() throws Exception {
-    when(signService.signIn(any(SignInDto.class))).thenReturn(1L);
-    mockMvc
-        .perform(
-            post("/auth/sign-in")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "username": "test_04cb017e1fe6",
-                      "password": "test_567472858b8c"
-                    }
-                    """)
-                .with(csrf()))
-        .andExpect(status().isOk());
-  }
+    @Test
+    public void givenRequestOnPublicService_shouldSucceedWith200() throws Exception {
+        when(signService.signIn(any(SignInDto.class))).thenReturn(1L);
+        mockMvc.perform(
+                        post("/auth/sign-in")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {
+                                          "username": "test_04cb017e1fe6",
+                                          "password": "test_567472858b8c"
+                                        }
+                                        """)
+                                .with(csrf()))
+                .andExpect(status().isOk());
+    }
 
-  @Test
-  public void givenUnAuthenticateRequestOnPrivateService_shouldFailedWith401() throws Exception {
-    mockMvc.perform(post("/auth/sign-out").with(csrf())).andExpect(status().isUnauthorized());
-  }
+    @Test
+    public void givenUnAuthenticateRequestOnPrivateService_shouldFailedWith401() throws Exception {
+        mockMvc.perform(post("/auth/sign-out").with(csrf())).andExpect(status().isUnauthorized());
+    }
 
-  @Test
-  public void givenUnAuthorityRequestOnPrivateService_shouldFailedWith403() throws Exception {
-    // Arrange
-    User stubUserNoPermission =
-        new User("test_04cb017e1fe6", "test_567472858b8c", Collections.emptyList());
-    when(jwt.extract(any(HttpServletRequest.class))).thenReturn(("u9T05Tg3ULCgRn8ja2"));
-    when(jwt.getSubject(any(String.class))).thenReturn(("4J2HX9r5JcXg0BT"));
-    when(jwt.verify(any(String.class))).thenReturn(Boolean.TRUE);
-    when(userDetailsService.loadUserByUsername(any(String.class))).thenReturn(stubUserNoPermission);
+    @Test
+    public void givenUnAuthorityRequestOnPrivateService_shouldFailedWith403() throws Exception {
+        // Arrange
+        User stubUserNoPermission =
+                new User("test_04cb017e1fe6", "test_567472858b8c", Collections.emptyList());
+        when(jwt.extract(any(HttpServletRequest.class))).thenReturn(("u9T05Tg3ULCgRn8ja2"));
+        when(jwt.getSubject(any(String.class))).thenReturn(("4J2HX9r5JcXg0BT"));
+        when(jwt.verify(any(String.class))).thenReturn(Boolean.TRUE);
+        when(userDetailsService.loadUserByUsername(any(String.class)))
+                .thenReturn(stubUserNoPermission);
 
-    // Act and Assert
-    mockMvc
-        .perform(
-            post("/urp/roles/1/bind-permission")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    [1]
-                    """))
-        .andExpect(status().isForbidden());
-  }
+        // Act and Assert
+        mockMvc.perform(
+                        post("/urp/roles/1/bind-permission")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        [1]
+                                        """))
+                .andExpect(status().isForbidden());
+    }
 
-  @Test
-  public void givenAuthorityRequestOnPrivateService_shouldSuccessWith200() throws Exception {
-    // Arrange
-    User stubUserNoPermission =
-        new User(
-            "test_04cb017e1fe6",
-            "test_567472858b8c",
-            List.of(new SimpleGrantedAuthority(EPermission.WRITE_USER_ROLE_PERMISSION.toString())));
-    when(jwt.extract(any(HttpServletRequest.class))).thenReturn(("u9T05Tg3ULCgRn8ja2"));
-    when(jwt.getSubject(any(String.class))).thenReturn(("4J2HX9r5JcXg0BT"));
-    when(jwt.verify(any(String.class))).thenReturn(Boolean.TRUE);
-    when(userDetailsService.loadUserByUsername(any(String.class))).thenReturn(stubUserNoPermission);
+    @Test
+    public void givenAuthorityRequestOnPrivateService_shouldSuccessWith200() throws Exception {
+        // Arrange
+        User stubUserNoPermission =
+                new User(
+                        "test_04cb017e1fe6",
+                        "test_567472858b8c",
+                        List.of(
+                                new SimpleGrantedAuthority(
+                                        EPermission.WRITE_USER_ROLE_PERMISSION.toString())));
+        when(jwt.extract(any(HttpServletRequest.class))).thenReturn(("u9T05Tg3ULCgRn8ja2"));
+        when(jwt.getSubject(any(String.class))).thenReturn(("4J2HX9r5JcXg0BT"));
+        when(jwt.verify(any(String.class))).thenReturn(Boolean.TRUE);
+        when(userDetailsService.loadUserByUsername(any(String.class)))
+                .thenReturn(stubUserNoPermission);
 
-    // Act and Assert
-    mockMvc
-        .perform(
-            post("/urp/roles/1/bind-permission")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    [1]
-                    """))
-        .andExpect(status().isOk());
-  }
+        // Act and Assert
+        mockMvc.perform(
+                        post("/urp/roles/1/bind-permission")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        [1]
+                                        """))
+                .andExpect(status().isOk());
+    }
 }

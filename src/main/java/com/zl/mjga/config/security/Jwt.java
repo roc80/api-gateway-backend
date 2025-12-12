@@ -22,80 +22,80 @@ import org.springframework.web.util.WebUtils;
 @Getter
 public class Jwt {
 
-  private final String secret;
+    private final String secret;
 
-  private final int expirationMin;
+    private final int expirationMin;
 
-  private final String cookieName;
+    private final String cookieName;
 
-  private final JWTVerifier verifier;
+    private final JWTVerifier verifier;
 
-  public Jwt(
-      @Value("${jwt.secret}") String secret,
-      @Value("${jwt.expiration-min}") int expirationMin,
-      @Value("${jwt.cookie-name}") String cookieName) {
-    this.verifier = JWT.require(Algorithm.HMAC256(secret)).build();
-    this.secret = secret;
-    this.expirationMin = expirationMin;
-    this.cookieName = cookieName;
-  }
-
-  public String getSubject(String token) {
-    return JWT.decode(token).getSubject();
-  }
-
-  public Boolean verify(String token) {
-    try {
-      verifier.verify(token);
-      return Boolean.TRUE;
-    } catch (JWTVerificationException e) {
-      return Boolean.FALSE;
+    public Jwt(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration-min}") int expirationMin,
+            @Value("${jwt.cookie-name}") String cookieName) {
+        this.verifier = JWT.require(Algorithm.HMAC256(secret)).build();
+        this.secret = secret;
+        this.expirationMin = expirationMin;
+        this.cookieName = cookieName;
     }
-  }
 
-  public String extract(HttpServletRequest request) {
-    Cookie cookie = WebUtils.getCookie(request, cookieName);
-    if (cookie != null) {
-      return cookie.getValue();
-    } else {
-      return null;
+    public String getSubject(String token) {
+        return JWT.decode(token).getSubject();
     }
-  }
 
-  public String create(String userIdentify) {
-    return JWT.create()
-        .withSubject(String.valueOf(userIdentify))
-        .withIssuedAt(new Date())
-        .withExpiresAt(
-            Date.from(
-                LocalDateTime.now()
-                    .plusMinutes(expirationMin)
-                    .atZone(ZoneId.systemDefault())
-                    .toInstant()))
-        .sign(Algorithm.HMAC256(secret));
-  }
-
-  private Cookie buildJwtCookiePojo(HttpServletRequest request, String userIdentify) {
-    String contextPath = request.getContextPath();
-    String cookiePath = StringUtils.isNotEmpty(contextPath) ? contextPath : "/";
-    Cookie cookie = new Cookie(cookieName, create(userIdentify));
-    cookie.setPath(cookiePath);
-    cookie.setMaxAge(expirationMin * 60);
-    cookie.setSecure(request.isSecure());
-    cookie.setHttpOnly(true);
-    return cookie;
-  }
-
-  public void makeToken(
-      HttpServletRequest request, HttpServletResponse response, String userIdentify) {
-    response.addCookie(buildJwtCookiePojo(request, userIdentify));
-  }
-
-  public void removeToken(HttpServletRequest request, HttpServletResponse response) {
-    Cookie cookie = WebUtils.getCookie(request, cookieName);
-    if (cookie != null) {
-      cookie.setMaxAge(0);
+    public Boolean verify(String token) {
+        try {
+            verifier.verify(token);
+            return Boolean.TRUE;
+        } catch (JWTVerificationException e) {
+            return Boolean.FALSE;
+        }
     }
-    response.addCookie(cookie);
-  }
+
+    public String extract(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, cookieName);
+        if (cookie != null) {
+            return cookie.getValue();
+        } else {
+            return null;
+        }
+    }
+
+    public String create(String userIdentify) {
+        return JWT.create()
+                .withSubject(String.valueOf(userIdentify))
+                .withIssuedAt(new Date())
+                .withExpiresAt(
+                        Date.from(
+                                LocalDateTime.now()
+                                        .plusMinutes(expirationMin)
+                                        .atZone(ZoneId.systemDefault())
+                                        .toInstant()))
+                .sign(Algorithm.HMAC256(secret));
+    }
+
+    private Cookie buildJwtCookiePojo(HttpServletRequest request, String userIdentify) {
+        String contextPath = request.getContextPath();
+        String cookiePath = StringUtils.isNotEmpty(contextPath) ? contextPath : "/";
+        Cookie cookie = new Cookie(cookieName, create(userIdentify));
+        cookie.setPath(cookiePath);
+        cookie.setMaxAge(expirationMin * 60);
+        cookie.setSecure(request.isSecure());
+        cookie.setHttpOnly(true);
+        return cookie;
+    }
+
+    public void makeToken(
+            HttpServletRequest request, HttpServletResponse response, String userIdentify) {
+        response.addCookie(buildJwtCookiePojo(request, userIdentify));
+    }
+
+    public void removeToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie = WebUtils.getCookie(request, cookieName);
+        if (cookie != null) {
+            cookie.setMaxAge(0);
+        }
+        response.addCookie(cookie);
+    }
 }

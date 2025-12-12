@@ -6,5 +6,5 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 public class UserQueryDto {
-  private String username;
+    private String username;
 }

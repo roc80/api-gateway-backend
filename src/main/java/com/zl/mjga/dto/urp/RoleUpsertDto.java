@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class RoleUpsertDto {
-  private Long id;
-  @NotEmpty private String code;
-  @NotEmpty private String name;
+    private Long id;
+    @NotEmpty private String code;
+    @NotEmpty private String name;
 }

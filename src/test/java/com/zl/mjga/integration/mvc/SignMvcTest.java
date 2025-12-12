@@ -23,122 +23,116 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({HttpFireWallConfig.class})
 class SignMvcTest {
 
-  @MockBean private SignService signService;
+    @MockBean private SignService signService;
 
-  @MockBean private Jwt jwt;
+    @MockBean private Jwt jwt;
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-  @Test
-  @WithMockUser
-  void signIn_givenValidHttpRequest_shouldSucceedWith200() throws Exception {
-    String stubUsername = "test_04cb017e1fe6";
-    String stubPassword = "test_567472858b8c";
-    SignInDto signInDto = new SignInDto();
-    signInDto.setUsername(stubUsername);
-    signInDto.setPassword(stubPassword);
+    @Test
+    @WithMockUser
+    void signIn_givenValidHttpRequest_shouldSucceedWith200() throws Exception {
+        String stubUsername = "test_04cb017e1fe6";
+        String stubPassword = "test_567472858b8c";
+        SignInDto signInDto = new SignInDto();
+        signInDto.setUsername(stubUsername);
+        signInDto.setPassword(stubPassword);
 
-    when(signService.signIn(signInDto)).thenReturn(1L);
-    mockMvc
-        .perform(
-            post("/auth/sign-in")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "username": "test_04cb017e1fe6",
-                      "password": "test_567472858b8c"
-                    }
-                    """)
-                .with(csrf()))
-        .andExpect(status().isOk());
-  }
+        when(signService.signIn(signInDto)).thenReturn(1L);
+        mockMvc.perform(
+                        post("/auth/sign-in")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {
+                                          "username": "test_04cb017e1fe6",
+                                          "password": "test_567472858b8c"
+                                        }
+                                        """)
+                                .with(csrf()))
+                .andExpect(status().isOk());
+    }
 
-  @Test
-  @WithMockUser
-  void signIn_givenInValidHttpRequest_shouldFailedWith400() throws Exception {
-    String stubUsername = "test_04cb017e1fe6";
-    String stubPassword = "test_567472858b8c";
-    SignInDto signInDto = new SignInDto();
-    signInDto.setUsername(stubUsername);
-    signInDto.setPassword(stubPassword);
+    @Test
+    @WithMockUser
+    void signIn_givenInValidHttpRequest_shouldFailedWith400() throws Exception {
+        String stubUsername = "test_04cb017e1fe6";
+        String stubPassword = "test_567472858b8c";
+        SignInDto signInDto = new SignInDto();
+        signInDto.setUsername(stubUsername);
+        signInDto.setPassword(stubPassword);
 
-    when(signService.signIn(signInDto)).thenReturn(1L);
-    mockMvc
-        .perform(
-            post("/auth/sign-in")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .content(
-                    """
-                    {
-                      "username": "test_04cb017e1fe6",
-                      "password": "test_567472858b8c"
-                    }
-                    """)
-                .with(csrf()))
-        .andExpect(status().isBadRequest());
+        when(signService.signIn(signInDto)).thenReturn(1L);
+        mockMvc.perform(
+                        post("/auth/sign-in")
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(
+                                        """
+                                        {
+                                          "username": "test_04cb017e1fe6",
+                                          "password": "test_567472858b8c"
+                                        }
+                                        """)
+                                .with(csrf()))
+                .andExpect(status().isBadRequest());
 
-    when(signService.signIn(signInDto)).thenReturn(1L);
-    mockMvc
-        .perform(
-            post("/auth/sign-in")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "username": "test_04cb017e1fe6"
-                    }
-                    """)
-                .with(csrf()))
-        .andExpect(status().isBadRequest());
-  }
+        when(signService.signIn(signInDto)).thenReturn(1L);
+        mockMvc.perform(
+                        post("/auth/sign-in")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {
+                                          "username": "test_04cb017e1fe6"
+                                        }
+                                        """)
+                                .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  @WithMockUser
-  void signUp_givenValidHttpRequest_shouldSucceedWith200() throws Exception {
-    mockMvc
-        .perform(
-            post("/auth/sign-up")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "username": "test_04cb017e1fe6",
-                      "password": "test_567472858b8c"
-                    }
-                    """)
-                .with(csrf()))
-        .andExpect(status().isCreated());
-  }
+    @Test
+    @WithMockUser
+    void signUp_givenValidHttpRequest_shouldSucceedWith200() throws Exception {
+        mockMvc.perform(
+                        post("/auth/sign-up")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {
+                                          "username": "test_04cb017e1fe6",
+                                          "password": "test_567472858b8c"
+                                        }
+                                        """)
+                                .with(csrf()))
+                .andExpect(status().isCreated());
+    }
 
-  @Test
-  @WithMockUser
-  void signUp_givenInValidHttpRequest_shouldFailedWith400() throws Exception {
-    mockMvc
-        .perform(
-            post("/auth/sign-up")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .content(
-                    """
-                    {
-                      "username": "test_04cb017e1fe6",
-                      "password": "test_567472858b8c"
-                    }
-                    """)
-                .with(csrf()))
-        .andExpect(status().isBadRequest());
+    @Test
+    @WithMockUser
+    void signUp_givenInValidHttpRequest_shouldFailedWith400() throws Exception {
+        mockMvc.perform(
+                        post("/auth/sign-up")
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(
+                                        """
+                                        {
+                                          "username": "test_04cb017e1fe6",
+                                          "password": "test_567472858b8c"
+                                        }
+                                        """)
+                                .with(csrf()))
+                .andExpect(status().isBadRequest());
 
-    mockMvc
-        .perform(
-            post("/auth/sign-up")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "username": "test_04cb017e1fe6"
-                    }
-                    """)
-                .with(csrf()))
-        .andExpect(status().isBadRequest());
-  }
+        mockMvc.perform(
+                        post("/auth/sign-up")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {
+                                          "username": "test_04cb017e1fe6"
+                                        }
+                                        """)
+                                .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
 }

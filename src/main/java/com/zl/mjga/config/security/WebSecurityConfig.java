@@ -41,40 +41,42 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   @Value("${spring.profiles.active}") String activeProfile) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http, @Value("${spring.profiles.active}") String activeProfile)
+            throws Exception {
         RestfulAuthenticationEntryPointHandler restfulAuthenticationEntryPointHandler =
                 new RestfulAuthenticationEntryPointHandler();
 
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> {
-                    // 公共接口
-                    auth.requestMatchers(
-                            "/auth/sign-in",
-                            "/auth/sign-up",
-                            "/error"
-                    ).permitAll();
+                .authorizeHttpRequests(
+                        auth -> {
+                            // 公共接口
+                            auth.requestMatchers("/auth/sign-in", "/auth/sign-up", "/error")
+                                    .permitAll();
 
-                    if ("dev".equalsIgnoreCase(activeProfile) || "test".equalsIgnoreCase(activeProfile)) {
-                        auth.requestMatchers(
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/doc.html",
-                                "/webjars/**"
-                        ).permitAll();
-                    }
+                            if ("dev".equalsIgnoreCase(activeProfile)
+                                    || "test".equalsIgnoreCase(activeProfile)) {
+                                auth.requestMatchers(
+                                                "/v3/api-docs/**",
+                                                "/swagger-ui.html",
+                                                "/swagger-ui/**",
+                                                "/doc.html",
+                                                "/webjars/**")
+                                        .permitAll();
+                            }
 
-                    auth.anyRequest().authenticated();
-                })
-                .exceptionHandling(ex -> ex
-                        .accessDeniedHandler(restfulAuthenticationEntryPointHandler)
-                        .authenticationEntryPoint(restfulAuthenticationEntryPointHandler)
-                )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterAt(new JwtAuthenticationFilter(jwt, userDetailsService),
+                            auth.anyRequest().authenticated();
+                        })
+                .exceptionHandling(
+                        ex ->
+                                ex.accessDeniedHandler(restfulAuthenticationEntryPointHandler)
+                                        .authenticationEntryPoint(
+                                                restfulAuthenticationEntryPointHandler))
+                .sessionManagement(
+                        sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterAt(
+                        new JwtAuthenticationFilter(jwt, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

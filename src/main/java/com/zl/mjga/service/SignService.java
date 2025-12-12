@@ -18,34 +18,35 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SignService {
 
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-  private final UserRolePermissionService userRolePermissionService;
+    private final UserRolePermissionService userRolePermissionService;
 
-  public Long signIn(SignInDto signInDto) {
-    User user = userRepository.fetchOneByUsername(signInDto.getUsername());
-    if (user == null) {
-      throw new BusinessException(String.format("%s user not found", signInDto.getUsername()));
+    public Long signIn(SignInDto signInDto) {
+        User user = userRepository.fetchOneByUsername(signInDto.getUsername());
+        if (user == null) {
+            throw new BusinessException(
+                    String.format("%s user not found", signInDto.getUsername()));
+        }
+        if (!passwordEncoder.matches(signInDto.getPassword(), user.getPassword())) {
+            throw new BusinessException("password invalid");
+        }
+        return user.getId();
     }
-    if (!passwordEncoder.matches(signInDto.getPassword(), user.getPassword())) {
-      throw new BusinessException("password invalid");
-    }
-    return user.getId();
-  }
 
-  @Transactional(rollbackFor = Throwable.class)
-  public void signUp(SignUpDto signUpDto) {
-    if (userRolePermissionService.isUsernameDuplicate(signUpDto.getUsername())) {
-      throw new BusinessException(
-          String.format("username %s already exist", signUpDto.getUsername()));
+    @Transactional(rollbackFor = Throwable.class)
+    public void signUp(SignUpDto signUpDto) {
+        if (userRolePermissionService.isUsernameDuplicate(signUpDto.getUsername())) {
+            throw new BusinessException(
+                    String.format("username %s already exist", signUpDto.getUsername()));
+        }
+        User user = new User();
+        user.setUsername(signUpDto.getUsername());
+        user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
+        userRepository.insert(user);
+        User insertUser = userRepository.fetchOneByUsername(signUpDto.getUsername());
+        userRolePermissionService.bindRoleModuleToUser(insertUser.getId(), List.of(ERole.GENERAL));
     }
-    User user = new User();
-    user.setUsername(signUpDto.getUsername());
-    user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
-    userRepository.insert(user);
-    User insertUser = userRepository.fetchOneByUsername(signUpDto.getUsername());
-    userRolePermissionService.bindRoleModuleToUser(insertUser.getId(), List.of(ERole.GENERAL));
-  }
 }

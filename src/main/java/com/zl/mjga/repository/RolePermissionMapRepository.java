@@ -11,13 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class RolePermissionMapRepository extends RolePermissionMapDao {
 
-  @Autowired
-  public RolePermissionMapRepository(Configuration configuration) {
-    super(configuration);
-  }
+    @Autowired
+    public RolePermissionMapRepository(Configuration configuration) {
+        super(configuration);
+    }
 
-  @Transactional
-  public void deleteByRoleId(Long roleId) {
-    ctx().deleteFrom(ROLE_PERMISSION_MAP).where(ROLE_PERMISSION_MAP.ROLE_ID.eq(roleId)).execute();
-  }
+    @Transactional
+    public void deleteByRoleId(Long roleId) {
+        ctx().deleteFrom(ROLE_PERMISSION_MAP)
+                .where(ROLE_PERMISSION_MAP.ROLE_ID.eq(roleId))
+                .execute();
+    }
 }

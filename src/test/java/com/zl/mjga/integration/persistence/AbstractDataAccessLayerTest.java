@@ -15,19 +15,19 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 public class AbstractDataAccessLayerTest {
 
-  public static PostgreSQLContainer<?> postgres =
-      new PostgreSQLContainer<>("postgres:17.5-alpine").withDatabaseName("mjga");
+    public static PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:17.5-alpine").withDatabaseName("mjga");
 
-  @DynamicPropertySource
-  static void postgresProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.datasource.url", postgres::getJdbcUrl);
-    registry.add("spring.datasource.username", postgres::getUsername);
-    registry.add("spring.datasource.password", postgres::getPassword);
-    registry.add("spring.flyway.locations", () -> "classpath:db/migration/test");
-    registry.add("spring.flyway.default-schema", () -> "public");
-  }
+    @DynamicPropertySource
+    static void postgresProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.flyway.locations", () -> "classpath:db/migration/test");
+        registry.add("spring.flyway.default-schema", () -> "public");
+    }
 
-  static {
-    postgres.start();
-  }
+    static {
+        postgres.start();
+    }
 }

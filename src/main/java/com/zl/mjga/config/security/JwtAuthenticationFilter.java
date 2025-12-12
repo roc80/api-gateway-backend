@@ -19,26 +19,29 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final Jwt jwt;
+    private final Jwt jwt;
 
-  private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
-  @Override
-  protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException {
-    String token = jwt.extract(request);
-    if (StringUtils.isNotEmpty(token) && jwt.verify(token)) {
-      try {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(jwt.getSubject(token));
-        JwtAuthenticationToken authenticated =
-            JwtAuthenticationToken.authenticated(userDetails, token, userDetails.getAuthorities());
-        authenticated.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authenticated);
-      } catch (Exception e) {
-        log.error("jwt with invalid user id {}", jwt.getSubject(token), e);
-      }
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String token = jwt.extract(request);
+        if (StringUtils.isNotEmpty(token) && jwt.verify(token)) {
+            try {
+                UserDetails userDetails =
+                        userDetailsService.loadUserByUsername(jwt.getSubject(token));
+                JwtAuthenticationToken authenticated =
+                        JwtAuthenticationToken.authenticated(
+                                userDetails, token, userDetails.getAuthorities());
+                authenticated.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticated);
+            } catch (Exception e) {
+                log.error("jwt with invalid user id {}", jwt.getSubject(token), e);
+            }
+        }
+        filterChain.doFilter(request, response);
     }
-    filterChain.doFilter(request, response);
-  }
 }

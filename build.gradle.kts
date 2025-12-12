@@ -140,7 +140,7 @@ spotless {
         // 只格式化源码目录，明确排除生成的代码
         target("src/main/java/**/*.java", "src/test/java/**/*.java")
         targetExclude("build/generated-sources/**")
-        googleJavaFormat("1.28.0").reflowLongStrings()
+        googleJavaFormat("1.28.0").reflowLongStrings().aosp()
         formatAnnotations()
     }
 

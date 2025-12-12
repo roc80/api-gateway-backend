@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class UserUpsertDto {
-  private Long id;
-  @NotEmpty private String username;
-  @NotEmpty private String password;
-  @NotNull private Boolean enable;
+    private Long id;
+    @NotEmpty private String username;
+    @NotEmpty private String password;
+    @NotNull private Boolean enable;
 }

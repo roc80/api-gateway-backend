@@ -15,76 +15,80 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-  @ExceptionHandler(value = {BusinessException.class})
-  public ResponseEntity<Object> handleBusinessException(BusinessException ex, WebRequest request) {
-    log.error("Business Error Handled  ===> ", ex);
-    ErrorResponseException errorResponseException =
-        new ErrorResponseException(
-            HttpStatus.BAD_REQUEST,
-            ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage()),
-            ex.getCause());
-    return handleExceptionInternal(
-        errorResponseException,
-        errorResponseException.getBody(),
-        errorResponseException.getHeaders(),
-        errorResponseException.getStatusCode(),
-        request);
-  }
+    @ExceptionHandler(value = {BusinessException.class})
+    public ResponseEntity<Object> handleBusinessException(
+            BusinessException ex, WebRequest request) {
+        log.error("Business Error Handled  ===> ", ex);
+        ErrorResponseException errorResponseException =
+                new ErrorResponseException(
+                        HttpStatus.BAD_REQUEST,
+                        ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage()),
+                        ex.getCause());
+        return handleExceptionInternal(
+                errorResponseException,
+                errorResponseException.getBody(),
+                errorResponseException.getHeaders(),
+                errorResponseException.getStatusCode(),
+                request);
+    }
 
-  @SuppressWarnings("NullableProblems")
-  @Override
-  @Nullable public ResponseEntity<Object> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException ex,
-      HttpHeaders headers,
-      HttpStatusCode status,
-      WebRequest request) {
-    log.error("MethodArgumentNotValidException Handled  ===> ", ex);
-    ErrorResponseException errorResponseException =
-        new ErrorResponseException(
-            status, ProblemDetail.forStatusAndDetail(status, ex.getMessage()), ex.getCause());
-    return handleExceptionInternal(
-        errorResponseException,
-        errorResponseException.getBody(),
-        errorResponseException.getHeaders(),
-        errorResponseException.getStatusCode(),
-        request);
-  }
+    @SuppressWarnings("NullableProblems")
+    @Override
+    @Nullable public ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+        log.error("MethodArgumentNotValidException Handled  ===> ", ex);
+        ErrorResponseException errorResponseException =
+                new ErrorResponseException(
+                        status,
+                        ProblemDetail.forStatusAndDetail(status, ex.getMessage()),
+                        ex.getCause());
+        return handleExceptionInternal(
+                errorResponseException,
+                errorResponseException.getBody(),
+                errorResponseException.getHeaders(),
+                errorResponseException.getStatusCode(),
+                request);
+    }
 
-  @ExceptionHandler(value = {RequestRejectedException.class})
-  public ResponseEntity<Object> handleRequestRejectedException(
-      RequestRejectedException ex, WebRequest request) {
-    log.error("RequestRejectedException Handled  ===> ", ex);
-    ErrorResponseException errorResponseException =
-        new ErrorResponseException(
-            HttpStatus.BAD_REQUEST,
-            ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage()),
-            ex.getCause());
-    return handleExceptionInternal(
-        errorResponseException,
-        errorResponseException.getBody(),
-        errorResponseException.getHeaders(),
-        errorResponseException.getStatusCode(),
-        request);
-  }
+    @ExceptionHandler(value = {RequestRejectedException.class})
+    public ResponseEntity<Object> handleRequestRejectedException(
+            RequestRejectedException ex, WebRequest request) {
+        log.error("RequestRejectedException Handled  ===> ", ex);
+        ErrorResponseException errorResponseException =
+                new ErrorResponseException(
+                        HttpStatus.BAD_REQUEST,
+                        ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage()),
+                        ex.getCause());
+        return handleExceptionInternal(
+                errorResponseException,
+                errorResponseException.getBody(),
+                errorResponseException.getHeaders(),
+                errorResponseException.getStatusCode(),
+                request);
+    }
 
-  @ExceptionHandler(value = {AccessDeniedException.class})
-  public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex) {
-    throw ex;
-  }
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex) {
+        throw ex;
+    }
 
-  @ExceptionHandler(value = {Throwable.class})
-  public ResponseEntity<Object> handleException(Throwable ex, WebRequest request) {
-    log.error("System Error Handled  ===> ", ex);
-    ErrorResponseException errorResponseException =
-        new ErrorResponseException(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "System Error"),
-            ex.getCause());
-    return handleExceptionInternal(
-        errorResponseException,
-        errorResponseException.getBody(),
-        errorResponseException.getHeaders(),
-        errorResponseException.getStatusCode(),
-        request);
-  }
+    @ExceptionHandler(value = {Throwable.class})
+    public ResponseEntity<Object> handleException(Throwable ex, WebRequest request) {
+        log.error("System Error Handled  ===> ", ex);
+        ErrorResponseException errorResponseException =
+                new ErrorResponseException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        ProblemDetail.forStatusAndDetail(
+                                HttpStatus.INTERNAL_SERVER_ERROR, "System Error"),
+                        ex.getCause());
+        return handleExceptionInternal(
+                errorResponseException,
+                errorResponseException.getBody(),
+                errorResponseException.getHeaders(),
+                errorResponseException.getStatusCode(),
+                request);
+    }
 }

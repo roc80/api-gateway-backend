@@ -8,8 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 public class RoleDto {
-  private Long id;
-  private String code;
-  private String name;
-  List<PermissionDto> permissions = new LinkedList<>();
+    private Long id;
+    private String code;
+    private String name;
+    List<PermissionDto> permissions = new LinkedList<>();
 }

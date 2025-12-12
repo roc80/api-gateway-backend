@@ -15,43 +15,48 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ToString
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
-  @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+    @Serial
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-  private final Object principal;
+    private final Object principal;
 
-  private String credentials;
+    private String credentials;
 
-  public JwtAuthenticationToken(Object principal, String credentials) {
-    super(null);
-    this.principal = principal;
-    this.credentials = credentials;
-    super.setAuthenticated(false);
-  }
+    public JwtAuthenticationToken(Object principal, String credentials) {
+        super(null);
+        this.principal = principal;
+        this.credentials = credentials;
+        super.setAuthenticated(false);
+    }
 
-  public JwtAuthenticationToken(
-      Object principal, String credentials, Collection<? extends GrantedAuthority> authorities) {
-    super(authorities);
-    this.principal = principal;
-    this.credentials = credentials;
-    super.setAuthenticated(true);
-  }
+    public JwtAuthenticationToken(
+            Object principal,
+            String credentials,
+            Collection<? extends GrantedAuthority> authorities) {
+        super(authorities);
+        this.principal = principal;
+        this.credentials = credentials;
+        super.setAuthenticated(true);
+    }
 
-  public static JwtAuthenticationToken unauthenticated(String userIdentify, String token) {
-    return new JwtAuthenticationToken(userIdentify, token);
-  }
+    public static JwtAuthenticationToken unauthenticated(String userIdentify, String token) {
+        return new JwtAuthenticationToken(userIdentify, token);
+    }
 
-  public static JwtAuthenticationToken authenticated(
-      UserDetails principal, String token, Collection<? extends GrantedAuthority> authorities) {
-    return new JwtAuthenticationToken(principal, token, authorities);
-  }
+    public static JwtAuthenticationToken authenticated(
+            UserDetails principal,
+            String token,
+            Collection<? extends GrantedAuthority> authorities) {
+        return new JwtAuthenticationToken(principal, token, authorities);
+    }
 
-  @Override
-  public String getCredentials() {
-    return this.credentials;
-  }
+    @Override
+    public String getCredentials() {
+        return this.credentials;
+    }
 
-  @Override
-  public Object getPrincipal() {
-    return this.principal;
-  }
+    @Override
+    public Object getPrincipal() {
+        return this.principal;
+    }
 }
