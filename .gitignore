@@ -226,4 +226,4 @@ logs
 db.d/store/*
 .git
 
-.claude
+.claude/
