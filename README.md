@@ -8,6 +8,13 @@
 
 --- 
 
+## 命令
+### 开发环境
+```text
+docker-compose -f compose-dev.yaml up -d
+docker-compose -f compose-dev.yaml down
+```
+
 ## 开发计划
 
 - [ ] 接口信息管理 12.21~12.22 
