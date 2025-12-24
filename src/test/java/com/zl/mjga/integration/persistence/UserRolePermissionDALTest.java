@@ -38,7 +38,8 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
             statements = {
                 "INSERT INTO api_gateway.user (id, username, password) VALUES (1,"
                         + " 'testUserA','5EUX1AIlV09n2o')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA', 'testRoleA')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA',"
+                        + " 'testRoleA')",
                 "INSERT INTO api_gateway.user_role_map (user_id, role_id) VALUES (1, 1)"
             })
     void userRoleMap_deleteByUserId() {
@@ -51,10 +52,12 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
             statements = {
                 "INSERT INTO api_gateway.user (id, username, password) VALUES (1,"
                         + " 'testUserA','5EUX1AIlV09n2o')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA', 'testRoleA')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA',"
+                        + " 'testRoleA')",
                 "INSERT INTO api_gateway.permission (id, code, name) VALUES (1, 'testPermissionA',"
                         + " 'testPermissionA')",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1, 1)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1,"
+                        + " 1)",
             })
     void rolePermissionMap_deleteByRoleId() {
         rolePermissionMapRepository.deleteByRoleId(1L);
@@ -68,17 +71,22 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
                         + " 'testUserA','5EUX1AIlV09n2o')",
                 "INSERT INTO api_gateway.user (id, username,password) VALUES (2,"
                         + " 'testUserB','NTjRCeUq2EqCy')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA', 'testRoleA')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB', 'testRoleB')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA',"
+                        + " 'testRoleA')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB',"
+                        + " 'testRoleB')",
                 "INSERT INTO api_gateway.permission (id, code, name) VALUES (1, 'testPermissionA',"
                         + " 'testPermissionA')",
                 "INSERT INTO api_gateway.permission (id, code, name) VALUES (2, 'testPermissionB',"
                         + " 'testPermissionB')",
                 "INSERT INTO api_gateway.user_role_map (user_id, role_id) VALUES (1, 1)",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1, 1)",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1, 2)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1,"
+                        + " 1)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1,"
+                        + " 2)",
                 "INSERT INTO api_gateway.user_role_map (user_id, role_id) VALUES (2, 2)",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (2, 2)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (2,"
+                        + " 2)",
             })
     void getUserFlatBy() {
         Result<Record> records = userRepository.getUserFlatBy(1L);
@@ -102,17 +110,22 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
                         + " 'testUserA','5EUX1AIlV09n2o')",
                 "INSERT INTO api_gateway.user (id, username,password) VALUES (2,"
                         + " 'testUserB','NTjRCeUq2EqCy')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA', 'testRoleA')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB', 'testRoleB')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA',"
+                        + " 'testRoleA')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB',"
+                        + " 'testRoleB')",
                 "INSERT INTO api_gateway.permission (id, code, name) VALUES (1, 'testPermissionA',"
                         + " 'testPermissionA')",
                 "INSERT INTO api_gateway.permission (id, code, name) VALUES (2, 'testPermissionB',"
                         + " 'testPermissionB')",
                 "INSERT INTO api_gateway.user_role_map (user_id, role_id) VALUES (1, 1)",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1, 1)",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1, 2)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1,"
+                        + " 1)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1,"
+                        + " 2)",
                 "INSERT INTO api_gateway.user_role_map (user_id, role_id) VALUES (2, 2)",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (2, 2)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (2,"
+                        + " 2)",
             })
     void pageFetchUserAggBy() {
         PageRequestDto pageRequestDto = new PageRequestDto();
@@ -136,7 +149,8 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
             statements = {
                 "INSERT INTO api_gateway.user (id, username, password) VALUES (1,"
                         + " 'testA','5EUX1AIlV09n2o')",
-                "INSERT INTO api_gateway.user (id, username,password) VALUES (2, 'testB','NTjRCeUq2EqCy')",
+                "INSERT INTO api_gateway.user (id, username,password) VALUES (2,"
+                        + " 'testB','NTjRCeUq2EqCy')",
             })
     void user_pageFetchBy() {
         UserQueryDto rbacQueryDto = new UserQueryDto("test");
@@ -151,8 +165,10 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA', 'testRoleA')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB', 'testRoleB')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA',"
+                        + " 'testRoleA')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB',"
+                        + " 'testRoleB')",
             })
     void role_selectByRoleIdIn() {
         List<Role> roles = roleRepository.selectByRoleIdIn(List.of(1L, 2L));
@@ -164,8 +180,10 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA', 'testRoleA')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB', 'testRoleB')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA',"
+                        + " 'testRoleA')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB',"
+                        + " 'testRoleB')",
             })
     void role_selectByRoleCodeIn() {
         List<Role> roles = roleRepository.selectByRoleCodeIn(List.of("testRoleA", "testRoleB"));
@@ -177,8 +195,10 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA', 'testRoleA')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB', 'testRoleB')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA',"
+                        + " 'testRoleA')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB',"
+                        + " 'testRoleB')",
             })
     void role_pageFetchBy() {
         RoleQueryDto roleQueryDto = new RoleQueryDto();
@@ -206,15 +226,20 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
     @Test
     @Sql(
             statements = {
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA', 'testRoleA')",
-                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB', 'testRoleB')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (1, 'testRoleA',"
+                        + " 'testRoleA')",
+                "INSERT INTO api_gateway.role (id, code, name) VALUES (2, 'testRoleB',"
+                        + " 'testRoleB')",
                 "INSERT INTO api_gateway.permission (id, code, name) VALUES (1, 'testPermissionA',"
                         + " 'testPermissionA')",
                 "INSERT INTO api_gateway.permission (id, code, name) VALUES (2, 'testPermissionB',"
                         + " 'testPermissionB')",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1, 1)",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1, 2)",
-                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (2, 2)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1,"
+                        + " 1)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (1,"
+                        + " 2)",
+                "INSERT INTO api_gateway.role_permission_map (role_id, permission_id) VALUES (2,"
+                        + " 2)",
             })
     void role_fetchUniqueRoleWithPermission() {
         Result<Record> records = roleRepository.getRoleAggBy(1L);

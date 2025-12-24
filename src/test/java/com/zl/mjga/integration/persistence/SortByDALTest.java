@@ -29,7 +29,8 @@ public class SortByDALTest extends AbstractDataAccessLayerTest {
             statements = {
                 "INSERT INTO api_gateway.user (id, username, password) VALUES (1,"
                         + " 'testA','5EUX1AIlV09n2o')",
-                "INSERT INTO api_gateway.user (id, username,password) VALUES (2, 'testB','NTjRCeUq2EqCy')",
+                "INSERT INTO api_gateway.user (id, username,password) VALUES (2,"
+                        + " 'testB','NTjRCeUq2EqCy')",
                 "INSERT INTO api_gateway.user (id, username,password) VALUES (3,"
                         + " 'testC','qFVVFvPqs291k10')",
             })
