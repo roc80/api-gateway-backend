@@ -6,18 +6,29 @@
 
 </div>
 
---- 
+---
 
 ## 命令
 ### 开发环境
 ```text
+
+# 启动依赖服务
 docker-compose -f compose-dev.yaml up -d
 docker-compose -f compose-dev.yaml down
+
+# 删除ClaudeCode执行过程中生成的空文件
+del \\.\E:\java\api-gateway-backend\nul
+
+
 ```
+
+
 
 ## 开发计划
 
-- [ ] 接口信息管理 12.21~12.22 
+- [ ] ~~接口信息管理 12.21-12.22~~
+- [x] 接口数据表设计 12.21-12.25
+- [ ] 接口表CRUD 12.26-12.30
 
 
 ---
