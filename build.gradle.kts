@@ -159,51 +159,166 @@ spotless {
 
 jooq {
     configuration {
+        jdbc {
+            driver = "org.postgresql.Driver"
+            url = "jdbc:postgresql://localhost:5432/api_gateway"
+            user = "postgres"
+            password = "123456"
+        }
         generator {
             database {
+                name = "org.jooq.meta.postgres.PostgresDatabase"
+                inputSchema = "api_gateway"
                 includes = ".*"
                 excludes = "qrtz_.*"
-                name = "org.jooq.meta.extensions.ddl.DDLDatabase"
-                properties {
-                    property {
-                        key = "scripts"
-                        value = "src/main/resources/db/migration/*.sql"
-                    }
-                    property {
-                        key = "sort"
-                        value = "semantic"
-                    }
-                    property {
-                        key = "unqualifiedSchema"
-                        value = "none"
-                    }
-                    property {
-                        key = "defaultNameCase"
-                        value = "lower"
-                    }
-                    property {
-                        key = "logExecutedQueries"
-                        value = "true"
-                    }
-                    property {
-                        key = "logExecutionResults"
-                        value = "true"
-                    }
-                }
             }
             generate {
                 isDaos = true
                 isRecords = true
-                isDeprecated = false
-                isImmutablePojos = false
                 isFluentSetters = true
                 isSpringAnnotations = true
                 isSpringDao = true
             }
             target {
-                packageName = "org.jooq.generated"
+                packageName = "org.jooq.generated.api_gateway"
                 directory = "build/generated-sources/jooq"
             }
         }
     }
+}
+
+// 通过 Docker 执行 Flyway 迁移
+tasks.register("flywayMigrateDocker") {
+    group = "database"
+    description = "Execute Flyway migrations using Docker"
+
+    doLast {
+        val migrationDir = file("src/main/resources/db/migration")
+        val containerName = "api-gateway-postgres-dev"
+
+        // 检查容器是否运行
+        val psProcess = ProcessBuilder("docker", "ps", "--filter", "name=$containerName", "--format", "{{.Names}}").start()
+        if (psProcess.inputStream.bufferedReader().use { it.readText().trim() } != containerName) {
+            throw GradleException("Docker container '$containerName' is not running.")
+        }
+
+        // 初始化 schema 和 flyway 历史表
+        val initSql =
+            """
+            CREATE SCHEMA IF NOT EXISTS api_gateway;
+            CREATE TABLE IF NOT EXISTS api_gateway.flyway_schema_history (
+                installed_rank INT NOT NULL,
+                version VARCHAR(50),
+                description VARCHAR(200) NOT NULL,
+                type VARCHAR(20) NOT NULL,
+                script VARCHAR(1000) NOT NULL,
+                checksum INT,
+                installed_by VARCHAR(100) NOT NULL,
+                installed_on TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                execution_time INT NOT NULL,
+                success BOOLEAN NOT NULL,
+                CONSTRAINT flyway_schema_history_pk PRIMARY KEY (installed_rank)
+            );
+            """.trimIndent()
+
+        ProcessBuilder(
+            "docker",
+            "exec",
+            "-i",
+            containerName,
+            "psql",
+            "-U",
+            "postgres",
+            "-d",
+            "api_gateway",
+            "-c",
+            initSql,
+        ).start().waitFor()
+
+        // 获取已执行的迁移
+        val existingMigrations = mutableSetOf<String>()
+        ProcessBuilder(
+            "docker",
+            "exec",
+            "-i",
+            containerName,
+            "psql",
+            "-U",
+            "postgres",
+            "-d",
+            "api_gateway",
+            "-t",
+            "-c",
+            "SELECT script FROM api_gateway.flyway_schema_history WHERE success = true;",
+        ).start()
+            .inputStream
+            .bufferedReader()
+            .use { reader ->
+                reader
+                    .readLines()
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                    .forEach { existingMigrations.add(it) }
+            }
+
+        // 执行迁移文件
+        migrationDir.listFiles()?.filter { it.extension == "sql" }?.sortedBy { it.name }?.forEach { file ->
+            if (existingMigrations.contains(file.name)) {
+                println("Skipping: ${file.name}")
+                return@forEach
+            }
+
+            println("Migrating: ${file.name}")
+            val startTime = System.currentTimeMillis()
+
+            ProcessBuilder("docker", "exec", "-i", containerName, "psql", "-U", "postgres", "-d", "api_gateway")
+                .redirectInput(ProcessBuilder.Redirect.from(file))
+                .redirectErrorStream(true)
+                .start()
+                .let { process ->
+                    val output = process.inputStream.bufferedReader().use { it.readText() }
+                    val executionTime = (System.currentTimeMillis() - startTime).toInt()
+
+                    if (process.waitFor() != 0) {
+                        throw GradleException("Migration failed: ${file.name}\n$output")
+                    }
+
+                    // 记录成功的迁移 (V1_0_0__desc.sql -> version=1.0.0, description=desc)
+                    val version =
+                        file.name
+                            .substringAfter("V")
+                            .substringBefore("__")
+                            .replace("_", ".")
+                    val description =
+                        file.name
+                            .substringAfter("__")
+                            .substringBefore(".sql")
+                            .replace("_", " ")
+
+                    ProcessBuilder(
+                        "docker",
+                        "exec",
+                        "-i",
+                        containerName,
+                        "psql",
+                        "-U",
+                        "postgres",
+                        "-d",
+                        "api_gateway",
+                        "-c",
+                        """
+                        INSERT INTO api_gateway.flyway_schema_history
+                        (installed_rank, version, description, type, script, installed_by, installed_on, execution_time, success)
+                        VALUES ((SELECT COALESCE(MAX(installed_rank), 0) + 1 FROM api_gateway.flyway_schema_history),
+                                '$version', '$description', 'SQL', '${file.name}', 'postgres', CURRENT_TIMESTAMP, $executionTime, true)
+                        """.trimIndent(),
+                    ).start().waitFor()
+                }
+        }
+    }
+}
+
+// 确保 Docker 迁移在 jOOQ 代码生成之前执行
+tasks.jooqCodegen {
+    dependsOn("flywayMigrateDocker")
 }
