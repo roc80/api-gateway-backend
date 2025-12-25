@@ -19,10 +19,10 @@ logging:
       jooq: debug
 
 cors:
-  allowedOrigins: ${ALLOWED_ORIGINS}
-  allowedMethods: ${ALLOWED_METHODS}
-  allowedHeaders: ${ALLOWED_HEADERS}
-  allowedExposeHeaders: ${ALLOWED_EXPOSE_HEADERS}
+  allowedOriginPatterns: ${ALLOWED_ORIGIN_PATTERNS:**}
+  allowedMethods: ${ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+  allowedHeaders: ${ALLOWED_HEADERS:*}
+  allowedExposeHeaders: ${ALLOWED_EXPOSE_HEADERS:*}
 
 spring:
   datasource:

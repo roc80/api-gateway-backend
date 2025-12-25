@@ -13,19 +13,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    @Value("${cors.allowedOriginPatterns}")
+    @Value("${cors.allowedOriginPatterns:**}")
     private String allowedOriginPatterns;
 
-    @Value("${cors.allowedOrigins}")
-    private String allowedOrigins;
-
-    @Value("${cors.allowedMethods}")
+    @Value("${cors.allowedMethods:GET,POST,PUT,DELETE,OPTIONS}")
     private String allowedMethods;
 
-    @Value("${cors.allowedHeaders}")
+    @Value("${cors.allowedHeaders:*}")
     private String allowedHeaders;
 
-    @Value("${cors.allowedExposeHeaders}")
+    @Value("${cors.allowedExposeHeaders:*}")
     private String allowedExposeHeaders;
 
     @Override
@@ -37,7 +34,6 @@ public class CorsConfig implements WebMvcConfigurer {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList(allowedOriginPatterns.split(",")));
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
         configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
         configuration.setExposedHeaders(Arrays.asList(allowedExposeHeaders.split(",")));
