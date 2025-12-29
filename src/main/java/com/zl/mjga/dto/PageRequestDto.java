@@ -15,7 +15,8 @@ import org.jooq.SortOrder;
 
 @Data
 @NoArgsConstructor
-public class PageRequestDto {
+@AllArgsConstructor
+public class PageRequestDto<T> {
 
     public static final String REGEX = "^[a-zA-Z][a-zA-Z0-9_]*$";
 
@@ -23,6 +24,7 @@ public class PageRequestDto {
 
     private long page;
     private long size;
+    private T request;
 
     @Schema(description = "排序字段", example = "name:asc,age:desc", type = "string")
     private Map<String, Direction> sortBy = new HashMap<>();

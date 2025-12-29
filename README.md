@@ -1,6 +1,6 @@
 # API Gateway Backend
 
-<div align="center">
+<div style="text-align: center;">
 
 [![wakatime](https://wakatime.com/badge/github/roc80/api-gateway-backend.svg)](https://wakatime.com/badge/github/roc80/api-gateway-backend)
 
@@ -10,19 +10,23 @@
 
 ## 命令
 ### 开发环境
-```text
+```bash
 
 # 启动依赖服务
 docker-compose -f compose-dev.yaml up -d
+```
+
+```bash
+
+# 停止依赖服务
 docker-compose -f compose-dev.yaml down
+```
+
+```bash
 
 # 删除ClaudeCode执行过程中生成的空文件
 del \\.\E:\java\api-gateway-backend\nul
-
-
 ```
-
-
 
 ## 开发计划
 

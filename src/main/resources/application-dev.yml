@@ -1,3 +1,5 @@
+server:
+  port: 8090
 cors:
   allowedOriginPatterns: http://localhost:*
   allowedOrigins: http://localhost:8000

@@ -15,6 +15,23 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+    @ExceptionHandler(value = {IllegalArgumentException.class})
+    public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
+        log.error("Bad Request Handled  ===> ", ex);
+        ErrorResponseException errorResponseException =
+                new ErrorResponseException(
+                        HttpStatus.BAD_REQUEST,
+                        ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage()),
+                        ex.getCause());
+        return handleExceptionInternal(
+                errorResponseException,
+                errorResponseException.getBody(),
+                errorResponseException.getHeaders(),
+                errorResponseException.getStatusCode(),
+                request);
+    }
+
+
     @ExceptionHandler(value = {BusinessException.class})
     public ResponseEntity<Object> handleBusinessException(
             BusinessException ex, WebRequest request) {
