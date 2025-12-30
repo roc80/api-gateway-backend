@@ -44,24 +44,35 @@ public class InterfaceService {
         return InterfaceDto.fromEntity(entity);
     }
 
-    // todo@lp 待实现
     public InterfaceDto updateEnabled(@Positive(message = "接口ID必须为正整数") Long id, Boolean enabled) {
-        return null;
+        ApiInterface entity = interfaceRepository.fetchOneById(id);
+        if (entity == null) {
+            throw new IllegalArgumentException(id + "对应的接口不存在");
+        }
+        entity.setEnabled(enabled);
+        interfaceRepository.update(entity);
+        return InterfaceDto.fromEntity(entity);
     }
 
     public InterfaceDto getInterfaceById(@Positive(message = "接口ID必须为正整数") Long id) {
-        return null;
+        ApiInterface entity = interfaceRepository.fetchOneById(id);
+        if (entity == null) {
+            throw new IllegalArgumentException(id + "对应的接口不存在");
+        }
+        return InterfaceDto.fromEntity(entity);
     }
 
-    public PageResponseDto<InterfaceDto> searchInterfaces(@Valid PageRequestDto<InterfaceQueryDto> pageRequestDto) {
-        return null;
+    public PageResponseDto<List<InterfaceDto>> searchInterfaces(@Valid PageRequestDto<InterfaceQueryDto> pageRequestDto) {
+        long total = interfaceRepository.countByQueryDto(pageRequestDto.getRequest());
+        List<ApiInterface> entities = interfaceRepository.fetchByPageRequestDto(pageRequestDto);
+        return PageResponseDto.fromEntities(total, entities, InterfaceDto::fromEntity);
     }
 
     public void deleteInterface(@Positive(message = "接口ID必须为正整数") Long id) {
-
+        interfaceRepository.deleteById(id);
     }
 
     public void batchDeleteInterfaces(@NotEmpty(message = "ID列表不能为空") List<Long> ids) {
-
+        interfaceRepository.deleteById(ids);
     }
 }

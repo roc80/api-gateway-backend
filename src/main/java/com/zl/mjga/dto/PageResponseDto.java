@@ -1,5 +1,8 @@
 package com.zl.mjga.dto;
 
+import java.util.List;
+import java.util.function.Function;
+
 import jakarta.annotation.Nullable;
 import lombok.*;
 
@@ -14,6 +17,13 @@ public class PageResponseDto<T> {
         }
         this.total = total;
         this.data = data;
+    }
+
+    public static <T, R> PageResponseDto<List<R>> fromEntities(long total, List<T> entities, Function<T, R> mapper) {
+        List<R> data = entities.stream()
+                .map(mapper)
+                .toList();
+        return new PageResponseDto<>(total, data);
     }
 
     public static <T> PageResponseDto<T> empty() {

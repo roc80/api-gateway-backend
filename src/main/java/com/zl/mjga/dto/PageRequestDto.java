@@ -45,7 +45,9 @@ public class PageRequestDto<T> {
     @AllArgsConstructor
     @Getter
     public enum Direction {
+        // 升序
         ASC("ASC"),
+        // 降序
         DESC("DESC");
 
         private final String keyword;

@@ -25,6 +25,8 @@ cors:
   allowedExposeHeaders: ${ALLOWED_EXPOSE_HEADERS:*}
 
 spring:
+  profiles:
+    active: dev
   datasource:
     url: jdbc:postgresql://${DATABASE_HOST_PORT}/${DATABASE_DB}
     username: ${DATABASE_USER}

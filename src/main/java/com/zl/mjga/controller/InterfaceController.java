@@ -1,5 +1,7 @@
 package com.zl.mjga.controller;
 
+import java.util.List;
+
 import com.zl.mjga.dto.PageRequestDto;
 import com.zl.mjga.dto.PageResponseDto;
 import com.zl.mjga.dto.api.*;
@@ -11,7 +13,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -79,7 +80,7 @@ public class InterfaceController {
      */
     @Operation(summary = "分页查询接口列表", description = "根据条件分页查询接口列表")
     @PostMapping("/search")
-    public PageResponseDto<InterfaceDto> search(@Valid @RequestBody PageRequestDto<InterfaceQueryDto> pageRequestDto) {
+    public PageResponseDto<List<InterfaceDto>> search(@Valid @RequestBody PageRequestDto<InterfaceQueryDto> pageRequestDto) {
         return interfaceService.searchInterfaces(pageRequestDto);
     }
 
