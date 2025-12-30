@@ -8,6 +8,10 @@
 
 ---
 
+## 注意事项
+
+1. IDEA Settings -> BuildTools -> Gradle GradleJvm选择21
+
 ## 命令
 ### 开发环境
 ```bash
