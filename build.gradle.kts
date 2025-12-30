@@ -75,7 +75,8 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers-bom:$testcontainersVersion")
     runtimeOnly("org.postgresql:postgresql")
     compileOnly("org.projectlombok:lombok")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    // CPU占用高，所以注释掉
+//    developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
