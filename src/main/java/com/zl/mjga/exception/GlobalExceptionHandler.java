@@ -31,7 +31,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 request);
     }
 
-
     @ExceptionHandler(value = {BusinessException.class})
     public ResponseEntity<Object> handleBusinessException(
             BusinessException ex, WebRequest request) {

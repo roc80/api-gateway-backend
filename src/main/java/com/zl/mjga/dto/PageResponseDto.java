@@ -1,9 +1,8 @@
 package com.zl.mjga.dto;
 
+import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.function.Function;
-
-import jakarta.annotation.Nullable;
 import lombok.*;
 
 @Data
@@ -19,10 +18,9 @@ public class PageResponseDto<T> {
         this.data = data;
     }
 
-    public static <T, R> PageResponseDto<List<R>> fromEntities(long total, List<T> entities, Function<T, R> mapper) {
-        List<R> data = entities.stream()
-                .map(mapper)
-                .toList();
+    public static <T, R> PageResponseDto<List<R>> fromEntities(
+            long total, List<T> entities, Function<T, R> mapper) {
+        List<R> data = entities.stream().map(mapper).toList();
         return new PageResponseDto<>(total, data);
     }
 

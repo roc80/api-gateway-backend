@@ -1,7 +1,7 @@
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 val jooqVersion by extra("3.19.24")
-val testcontainersVersion by extra("1.21.3")
+val testcontainersVersion by extra("2.0.2")
 
 val dbUrl = "jdbc:postgresql://localhost:5432/api_gateway"
 val dbUser = "postgres"
@@ -44,6 +44,17 @@ configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
     }
+    all {
+        resolutionStrategy {
+            // 防止SpringBoot3.5.5的依赖传递覆盖自定义的版本
+            force("org.testcontainers:testcontainers:$testcontainersVersion")
+            force("org.testcontainers:testcontainers-core:$testcontainersVersion")
+            force("org.testcontainers:jdbc:$testcontainersVersion")
+            force("org.testcontainers:database-commons:$testcontainersVersion")
+            force("org.testcontainers:testcontainers-database-commons:$testcontainersVersion")
+            force("org.testcontainers:testcontainers-jdbc:$testcontainersVersion")
+        }
+    }
 }
 
 repositories {
@@ -69,17 +80,21 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.github.ben-manes.caffeine:caffeine")
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:postgresql")
-    testImplementation(platform("org.testcontainers:testcontainers-bom:$testcontainersVersion"))
-    runtimeOnly("org.postgresql:postgresql")
-    compileOnly("org.projectlombok:lombok")
-    // CPU占用高，所以注释掉
-//    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter:$testcontainersVersion")
+    testImplementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers") {
+        // spring-boot-testcontainers 内部依赖了 org.testcontainers:testcontainers:1.21.3
+        exclude(group = "org.testcontainers", module = "testcontainers")
+    }
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+
+    runtimeOnly("org.postgresql:postgresql")
+    compileOnly("org.projectlombok:lombok")
+
     jooqCodegen("org.postgresql:postgresql")
     jooqCodegen("org.jooq:jooq-codegen:$jooqVersion")
     jooqCodegen("org.jooq:jooq-meta-extensions:$jooqVersion")

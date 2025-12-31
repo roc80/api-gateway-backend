@@ -10,12 +10,11 @@ import com.zl.mjga.repository.api.InterfaceRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.api_gateway.tables.pojos.ApiInterface;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @author roc
@@ -27,14 +26,14 @@ import java.util.List;
 public class InterfaceService {
     private final InterfaceRepository interfaceRepository;
 
-
     public InterfaceDto createInterface(@Valid InterfaceCreateDto createDto) {
-        ApiInterface entity =  createDto.toEntity();
+        ApiInterface entity = createDto.toEntity();
         interfaceRepository.insert(entity);
         return InterfaceDto.fromEntity(entity);
     }
 
-    public InterfaceDto updateInterface(@Positive(message = "接口ID必须为正整数") Long id, @Valid InterfaceUpdateDto updateDto) {
+    public InterfaceDto updateInterface(
+            @Positive(message = "接口ID必须为正整数") Long id, @Valid InterfaceUpdateDto updateDto) {
         ApiInterface entity = interfaceRepository.fetchOneById(id);
         if (entity == null) {
             throw new IllegalArgumentException(id + "对应的接口不存在");
@@ -62,7 +61,8 @@ public class InterfaceService {
         return InterfaceDto.fromEntity(entity);
     }
 
-    public PageResponseDto<List<InterfaceDto>> searchInterfaces(@Valid PageRequestDto<InterfaceQueryDto> pageRequestDto) {
+    public PageResponseDto<List<InterfaceDto>> searchInterfaces(
+            @Valid PageRequestDto<InterfaceQueryDto> pageRequestDto) {
         long total = interfaceRepository.countByQueryDto(pageRequestDto.getRequest());
         List<ApiInterface> entities = interfaceRepository.fetchByPageRequestDto(pageRequestDto);
         return PageResponseDto.fromEntities(total, entities, InterfaceDto::fromEntity);
