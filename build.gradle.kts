@@ -33,7 +33,6 @@ version = "1.0.0"
 description = "make java great again!"
 java.sourceCompatibility = JavaVersion.VERSION_21
 java.targetCompatibility = JavaVersion.VERSION_21
-// 不指定版本的话，compileJava 会失败
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
@@ -184,7 +183,10 @@ jooq {
     }
 }
 
-fun executeCommand(vararg command: String, input: File? = null): String {
+fun executeCommand(
+    vararg command: String,
+    input: File? = null,
+): String {
     val pb = ProcessBuilder(*command)
     input?.let { pb.redirectInput(ProcessBuilder.Redirect.from(it)) }
     val process = pb.start()
@@ -201,8 +203,7 @@ fun executeCommand(vararg command: String, input: File? = null): String {
     }
 }
 
-fun escapeSqlString(str: String): String =
-    str.replace("'", "''").replace("\\", "\\\\")
+fun escapeSqlString(str: String): String = str.replace("'", "''").replace("\\", "\\\\")
 
 tasks.register("flywayMigrateDocker") {
     group = "database"
@@ -212,8 +213,15 @@ tasks.register("flywayMigrateDocker") {
         val migrationDir = file("src/main/resources/db/migration")
 
         // 检查容器是否运行
-        val psResult = executeCommand("docker", "ps", "--filter", "name=$dbDockerContainer", "--format",
-            "{{.Names}}")
+        val psResult =
+            executeCommand(
+                "docker",
+                "ps",
+                "--filter",
+                "name=$dbDockerContainer",
+                "--format",
+                "{{.Names}}",
+            )
         if (psResult.trim() != dbDockerContainer) {
             throw GradleException("Docker container '$dbDockerContainer' is not running.")
         }
@@ -237,13 +245,36 @@ tasks.register("flywayMigrateDocker") {
             );
             """.trimIndent()
 
-        executeCommand("docker", "exec", "-i", dbDockerContainer, "psql", "-U", dbUser, "-d", "api_gateway",
-            "-c", initSql)
+        executeCommand(
+            "docker",
+            "exec",
+            "-i",
+            dbDockerContainer,
+            "psql",
+            "-U",
+            dbUser,
+            "-d",
+            "api_gateway",
+            "-c",
+            initSql,
+        )
 
         // 获取已执行的迁移
         val existingMigrationsResult =
-            executeCommand("docker", "exec", "-i", dbDockerContainer, "psql", "-U", dbUser, "-d",
-                "api_gateway", "-t", "-c", "SELECT script FROM api_gateway.flyway_schema_history WHERE success = true;",)
+            executeCommand(
+                "docker",
+                "exec",
+                "-i",
+                dbDockerContainer,
+                "psql",
+                "-U",
+                dbUser,
+                "-d",
+                "api_gateway",
+                "-t",
+                "-c",
+                "SELECT script FROM api_gateway.flyway_schema_history WHERE success = true;",
+            )
         val existingMigrations =
             existingMigrationsResult
                 .lines()
@@ -265,8 +296,18 @@ tasks.register("flywayMigrateDocker") {
                 val startTime = System.currentTimeMillis()
 
                 // 执行迁移文件
-                executeCommand("docker", "exec", "-i", dbDockerContainer, "psql", "-U", dbUser, "-d",
-                    "api_gateway", input = file,)
+                executeCommand(
+                    "docker",
+                    "exec",
+                    "-i",
+                    dbDockerContainer,
+                    "psql",
+                    "-U",
+                    dbUser,
+                    "-d",
+                    "api_gateway",
+                    input = file,
+                )
 
                 val executionTime = (System.currentTimeMillis() - startTime).toInt()
 
@@ -295,8 +336,19 @@ tasks.register("flywayMigrateDocker") {
                             '$escapedVersion', '$escapedDescription', 'SQL', '$escapedScriptName', '$dbUser', CURRENT_TIMESTAMP, $executionTime, true)
                     """.trimIndent()
 
-                executeCommand("docker", "exec", "-i", dbDockerContainer, "psql", "-U", dbUser, "-d",
-                    "api_gateway", "-c", insertSql,)
+                executeCommand(
+                    "docker",
+                    "exec",
+                    "-i",
+                    dbDockerContainer,
+                    "psql",
+                    "-U",
+                    dbUser,
+                    "-d",
+                    "api_gateway",
+                    "-c",
+                    insertSql,
+                )
             }
     }
 }
