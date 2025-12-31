@@ -9,27 +9,24 @@
 ---
 
 ## 注意事项
-
-1. IDEA Settings -> BuildTools -> Gradle GradleJvm选择21
-
-## 命令
-### 开发环境
-```bash
+- IDEA Project SDK, Gradle Jvm 选择 build.gradle.kts中指定的JDK版本
+- 编译项目前，确保有docker环境，启动依赖的服务
+```shell
 
 # 启动依赖服务
 docker-compose -f compose-dev.yaml up -d
 ```
+- 首次启动或改动sql后，手动执行
+```shell
 
-```bash
-
-# 停止依赖服务
-docker-compose -f compose-dev.yaml down
+# 生成jooq模板代码
+ .\gradlew.bat jooqCodegen
 ```
+- build时如果spotlessCheck失败，手动执行
+```shell
 
-```bash
-
-# 删除ClaudeCode执行过程中生成的空文件
-del \\.\E:\java\api-gateway-backend\nul
+# 应用spotless插件
+.\gradlew.bat spotlessApply
 ```
 
 ## 开发计划
