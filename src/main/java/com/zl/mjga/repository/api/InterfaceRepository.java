@@ -86,4 +86,21 @@ public class InterfaceRepository extends ApiInterfaceDao {
                 ? noCondition()
                 : conditions.stream().reduce(Condition::and).orElse(noCondition());
     }
+
+    public void logicDelete(Long id) {
+        ctx().update(ApiInterface.API_INTERFACE)
+                .set(ApiInterface.API_INTERFACE.DELETED, true)
+                .where(ApiInterface.API_INTERFACE.ID.eq(id))
+                .execute();
+    }
+
+    public void logicDelete(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        ctx().update(ApiInterface.API_INTERFACE)
+                .set(ApiInterface.API_INTERFACE.DELETED, true)
+                .where(ApiInterface.API_INTERFACE.ID.in(ids))
+                .execute();
+    }
 }

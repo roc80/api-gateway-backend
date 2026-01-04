@@ -1,11 +1,10 @@
 package com.zl.mjga.dto.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.OffsetDateTime;
 import lombok.NonNull;
 import org.jooq.JSONB;
 import org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceCallLog;
-
-import java.time.OffsetDateTime;
 
 /**
  * @author roc
@@ -21,8 +20,7 @@ public record InterfaceCallLogDto(
         @Schema(description = "响应状态码") Integer statusCode,
         @Schema(description = "是否调用成功") Boolean success,
         @Schema(description = "请求耗时（ms）") Integer durationMs,
-        @Schema(description = "调用日志创建时间") OffsetDateTime createTime
-) {
+        @Schema(description = "调用日志创建时间") OffsetDateTime createTime) {
     public static InterfaceCallLogDto fromEntity(@NonNull ApiInterfaceCallLog entity) {
         return new InterfaceCallLogDto(
                 entity.getId(),
@@ -34,7 +32,6 @@ public record InterfaceCallLogDto(
                 entity.getStatusCode(),
                 entity.getSuccess(),
                 entity.getDurationMs(),
-                entity.getCreateTime()
-        );
+                entity.getCreateTime());
     }
 }

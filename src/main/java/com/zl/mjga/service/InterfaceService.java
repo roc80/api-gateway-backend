@@ -69,10 +69,10 @@ public class InterfaceService {
     }
 
     public void deleteInterface(@Positive(message = "接口ID必须为正整数") Long id) {
-        interfaceRepository.deleteById(id);
+        interfaceRepository.logicDelete(id);
     }
 
     public void batchDeleteInterfaces(@NotEmpty(message = "ID列表不能为空") List<Long> ids) {
-        interfaceRepository.deleteById(ids);
+        interfaceRepository.logicDelete(ids);
     }
 }

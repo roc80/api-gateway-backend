@@ -1,7 +1,6 @@
 package com.zl.mjga.dto.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.time.OffsetDateTime;
 
 /**
@@ -15,6 +14,4 @@ public record InterfaceCallLogQueryDto(
         @Schema(description = "响应状态码") Integer statusCode,
         @Schema(description = "是否调用成功") Boolean success,
         @Schema(description = "请求耗时（ms）") Integer durationMs,
-        @Schema(description = "调用日志创建时间") OffsetDateTime createTime
-) {
-}
+        @Schema(description = "调用日志创建时间") OffsetDateTime createTime) {}
