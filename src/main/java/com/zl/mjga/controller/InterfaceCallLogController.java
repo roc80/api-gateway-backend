@@ -50,7 +50,7 @@ public class InterfaceCallLogController {
     @PostMapping("/search")
     public PageResponseDto<List<InterfaceCallLogDto>> search(
             @Valid @RequestBody PageRequestDto<InterfaceCallLogQueryDto> pageRequestDto) {
-        return interfaceCallLogService.searchInterfaces(pageRequestDto);
+        return interfaceCallLogService.searchInterfaceCallLogs(pageRequestDto);
     }
     
 }

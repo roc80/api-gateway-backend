@@ -2,6 +2,8 @@ package com.zl.mjga.service;
 
 import java.util.List;
 
+import com.zl.mjga.exception.BusinessException;
+import org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceCallLog;
 import org.springframework.stereotype.Service;
 
 import com.zl.mjga.dto.PageRequestDto;
@@ -27,13 +29,17 @@ public class InterfaceCallLogService {
 
 
     public InterfaceCallLogDto getInterfaceCallLogById(@Positive(message = "接口调用日志ID必须为正整数") Long id) {
-        // todo@Lp
-        return null;
+        ApiInterfaceCallLog entity = interfaceCallLogRepository.findById(id);
+        if (entity == null) {
+            throw new BusinessException(String.format("id = %d 的接口调用日志不存在", id));
+        }
+        return InterfaceCallLogDto.fromEntity(entity);
     }
 
-    public PageResponseDto<List<InterfaceCallLogDto>> searchInterfaces(@Valid PageRequestDto<InterfaceCallLogQueryDto> pageRequestDto) {
-        // todo@Lp
-        return null;
+    public PageResponseDto<List<InterfaceCallLogDto>> searchInterfaceCallLogs(@Valid PageRequestDto<InterfaceCallLogQueryDto> pageRequestDto) {
+        long total = interfaceCallLogRepository.countByQueryDto(pageRequestDto.getRequest());
+        List<ApiInterfaceCallLog> entities = interfaceCallLogRepository.fetchByPageRequestDto(pageRequestDto);
+        return PageResponseDto.fromEntities(total, entities, InterfaceCallLogDto::fromEntity);
     }
 
     public InterfaceCallLogDto createInterfaceCallLog(@Valid InterfaceCallLogCreateDto interfaceCallLogCreateDto) {
