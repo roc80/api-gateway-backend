@@ -75,10 +75,15 @@ public class InterfaceCallLogRepository extends ApiInterfaceCallLogDao {
                     ApiInterfaceCallLog.API_INTERFACE_CALL_LOG.DURATION_MS.eq(
                             queryDto.durationMs()));
         }
-        if (queryDto.createTime() != null) {
+        if (queryDto.createTimeStart() != null) {
             conditions.add(
-                    ApiInterfaceCallLog.API_INTERFACE_CALL_LOG.CREATE_TIME.eq(
-                            queryDto.createTime()));
+                    ApiInterfaceCallLog.API_INTERFACE_CALL_LOG.CREATE_TIME.greaterOrEqual(
+                            queryDto.createTimeStart()));
+        }
+        if (queryDto.createTimeEnd() != null) {
+            conditions.add(
+                    ApiInterfaceCallLog.API_INTERFACE_CALL_LOG.CREATE_TIME.lessOrEqual(
+                            queryDto.createTimeEnd()));
         }
 
         return conditions.isEmpty() ? noCondition() : DSL.and(conditions);

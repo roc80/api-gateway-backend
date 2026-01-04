@@ -81,6 +81,24 @@ public class InterfaceRepository extends ApiInterfaceDao {
         if (StringUtils.isNotBlank(queryDto.owner())) {
             conditions.add(ApiInterface.API_INTERFACE.OWNER.like("%" + queryDto.owner() + "%"));
         }
+        if (queryDto.createTimeStart() != null) {
+            conditions.add(
+                    ApiInterface.API_INTERFACE.CREATE_TIME.greaterOrEqual(
+                            queryDto.createTimeStart()));
+        }
+        if (queryDto.createTimeEnd() != null) {
+            conditions.add(
+                    ApiInterface.API_INTERFACE.CREATE_TIME.lessOrEqual(queryDto.createTimeEnd()));
+        }
+        if (queryDto.updateTimeStart() != null) {
+            conditions.add(
+                    ApiInterface.API_INTERFACE.UPDATE_TIME.greaterOrEqual(
+                            queryDto.updateTimeStart()));
+        }
+        if (queryDto.updateTimeEnd() != null) {
+            conditions.add(
+                    ApiInterface.API_INTERFACE.UPDATE_TIME.lessOrEqual(queryDto.updateTimeEnd()));
+        }
 
         return conditions.isEmpty()
                 ? noCondition()

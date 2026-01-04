@@ -92,8 +92,31 @@ public class InterfaceVersionRepository extends ApiInterfaceVersionDao {
                     ApiInterfaceVersion.API_INTERFACE_VERSION.ALLOW_INVOKE.eq(
                             request.allowInvoke()));
         }
-
-        // todo@lp JSONB和OffsetDateTime类型还没有应用
+        if (request.requestHeaders() != null) {
+            conditions.add(
+                    ApiInterfaceVersion.API_INTERFACE_VERSION.REQUEST_HEADERS.contains(
+                            request.requestHeaders()));
+        }
+        if (request.createTimeStart() != null) {
+            conditions.add(
+                    ApiInterfaceVersion.API_INTERFACE_VERSION.CREATE_TIME.greaterOrEqual(
+                            request.createTimeStart()));
+        }
+        if (request.createTimeEnd() != null) {
+            conditions.add(
+                    ApiInterfaceVersion.API_INTERFACE_VERSION.CREATE_TIME.lessOrEqual(
+                            request.createTimeEnd()));
+        }
+        if (request.updateTimeStart() != null) {
+            conditions.add(
+                    ApiInterfaceVersion.API_INTERFACE_VERSION.UPDATE_TIME.greaterOrEqual(
+                            request.updateTimeStart()));
+        }
+        if (request.updateTimeEnd() != null) {
+            conditions.add(
+                    ApiInterfaceVersion.API_INTERFACE_VERSION.UPDATE_TIME.lessOrEqual(
+                            request.updateTimeEnd()));
+        }
 
         return conditions.isEmpty()
                 ? noCondition()

@@ -14,5 +14,7 @@ public record InterfaceQueryDto(
         @Schema(description = "接口是否启用") Boolean enabled,
         @Schema(description = "接口分类") String category,
         @Schema(description = "接口所有者") String owner,
-        @Schema(description = "创建时间") OffsetDateTime createTime,
-        @Schema(description = "更新时间") OffsetDateTime updateTime) {}
+        @Schema(description = "创建时间开始") OffsetDateTime createTimeStart,
+        @Schema(description = "创建时间结束") OffsetDateTime createTimeEnd,
+        @Schema(description = "更新时间开始") OffsetDateTime updateTimeStart,
+        @Schema(description = "更新时间结束") OffsetDateTime updateTimeEnd) {}

@@ -17,5 +17,7 @@ public record InterfaceVersionQueryDto(
         @Schema(description = "HTTP请求头") JSONB requestHeaders,
         @Schema(description = "认证方式") String authType,
         @Schema(description = "是否允许调用") Boolean allowInvoke,
-        @Schema(description = "创建时间") OffsetDateTime createTime,
-        @Schema(description = "更新时间") OffsetDateTime updateTime) {}
+        @Schema(description = "创建时间开始") OffsetDateTime createTimeStart,
+        @Schema(description = "创建时间结束") OffsetDateTime createTimeEnd,
+        @Schema(description = "更新时间开始") OffsetDateTime updateTimeStart,
+        @Schema(description = "更新时间结束") OffsetDateTime updateTimeEnd) {}
