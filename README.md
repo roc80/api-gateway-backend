@@ -9,7 +9,8 @@
 ---
 
 ## 注意事项
-- IDEA Project SDK, Gradle Jvm 选择 build.gradle.kts中指定的JDK版本
+- IDEA Project SDK选择 build.gradle.kts中指定的JDK版本
+- IDEA Settings - Build, Execution, Deployment - Build Tools - Gradle - Build and run using IntelliJ IDEA
 - 编译项目前，确保有docker环境，启动依赖的服务
 ```shell
 
