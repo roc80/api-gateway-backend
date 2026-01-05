@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @author roc
  * @since 2025/12/31 17:21
  */
-@Tag(name = "接口调用日志")
 @RestController
 @RequestMapping("/api/interfaces/logs")
 @RequiredArgsConstructor

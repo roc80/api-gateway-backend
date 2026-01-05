@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
  * @author roc
  * @since 2025/12/25 20:14
  */
-@Tag(name = "接口管理", description = "接口信息 CRUD 接口")
 @RestController
 @RequestMapping("/api/interfaces")
 @RequiredArgsConstructor

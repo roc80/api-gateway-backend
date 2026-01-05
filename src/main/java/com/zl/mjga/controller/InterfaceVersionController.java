@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @author roc
  * @since 2025/12/31 17:21
  */
-@Tag(name = "接口版本管理")
 @RestController
 @RequestMapping("/api/interfaces/versions")
 @RequiredArgsConstructor
@@ -56,7 +55,7 @@ public class InterfaceVersionController {
 
     /** 更新接口版本 */
     @Operation(summary = "更新接口版本")
-    @PostMapping("/{id}}")
+    @PostMapping("/{id}")
     public InterfaceVersionDto update(
             @Parameter(description = "接口版本ID", required = true)
                     @PathVariable
