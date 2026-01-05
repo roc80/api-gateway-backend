@@ -92,10 +92,15 @@ public class Jwt {
     }
 
     public void removeToken(HttpServletRequest request, HttpServletResponse response) {
-        Cookie cookie = WebUtils.getCookie(request, cookieName);
-        if (cookie != null) {
-            cookie.setMaxAge(0);
-        }
-        response.addCookie(cookie);
+        String contextPath = request.getContextPath();
+        String cookiePath = StringUtils.isNotEmpty(contextPath) ? contextPath : "/";
+
+        Cookie cookieToRemove = new Cookie(cookieName, "");
+        cookieToRemove.setPath(cookiePath);
+        cookieToRemove.setMaxAge(0);
+        cookieToRemove.setSecure(request.isSecure());
+        cookieToRemove.setHttpOnly(true);
+
+        response.addCookie(cookieToRemove);
     }
 }
