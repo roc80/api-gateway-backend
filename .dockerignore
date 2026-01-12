@@ -118,7 +118,7 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 ### dotenv template
-.env
+.env.prod
 
 ### Git template
 # Created by git for backups. To disable backups in Git:

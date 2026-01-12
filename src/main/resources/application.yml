@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
   servlet:
     context-path: /api
     session:
@@ -24,9 +24,6 @@ cors:
   allowedHeaders: ${ALLOWED_HEADERS:*}
   allowedExposeHeaders: ${ALLOWED_EXPOSE_HEADERS:*}
 
-spring:
-  profiles:
-    active: dev
   datasource:
     url: jdbc:postgresql://${DATABASE_HOST_PORT}/${DATABASE_DB}
     username: ${DATABASE_USER}
