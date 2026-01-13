@@ -2,10 +2,9 @@ server:
   port: 8090
 cors:
   allowedOriginPatterns: http://localhost:*
-  allowedOrigins: http://localhost:8000
   allowedMethods: GET,POST,PUT,DELETE,OPTIONS
   allowedHeaders: "*"
-  allowedExposeHeaders: "*"
+  exposedHeaders: "*"
 
 spring:
   datasource:

@@ -1,9 +1,13 @@
 package com.zl.mjga.config.security;
 
+import java.util.Arrays;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -29,6 +33,8 @@ public class WebSecurityConfig {
 
     private final CorsConfigurationSource corsConfigurationSource;
 
+    private final Environment env;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -41,11 +47,12 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, @Value("${spring.profiles.active}") String activeProfile)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
         RestfulAuthenticationEntryPointHandler restfulAuthenticationEntryPointHandler =
                 new RestfulAuthenticationEntryPointHandler();
+
+        List<String> activeProfiles = Arrays.stream(env.getActiveProfiles()).toList();
 
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -55,8 +62,8 @@ public class WebSecurityConfig {
                             auth.requestMatchers("/auth/sign-in", "/auth/sign-up", "/error")
                                     .permitAll();
 
-                            if ("dev".equalsIgnoreCase(activeProfile)
-                                    || "test".equalsIgnoreCase(activeProfile)) {
+                            // todo@lp 开发阶段部署时开放接口文档
+                            if (true || activeProfiles.contains("dev") || activeProfiles.contains("test")) {
                                 auth.requestMatchers(
                                                 "/v3/api-docs/**",
                                                 "/swagger-ui.html",
