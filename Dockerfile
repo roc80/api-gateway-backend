@@ -14,7 +14,7 @@ RUN dos2unix gradlew && chmod +x gradlew
 
 RUN --mount=type=cache,target=/cache \
     --mount=type=cache,target=/root/.gradle \
-    RUN ./gradlew bootJar --no-daemon --stacktrace
+   ./gradlew bootJar --no-daemon --stacktrace
 
 # ---------- Runtime ----------
 FROM eclipse-temurin:21-jre-jammy
