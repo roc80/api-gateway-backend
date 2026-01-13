@@ -23,7 +23,7 @@ plugins {
 sourceSets {
     main {
         java {
-            srcDir("build/generated-sources/jooq")
+            srcDir("src/generated/java")
         }
     }
 }
@@ -177,7 +177,7 @@ jooq {
             }
             target {
                 packageName = "org.jooq.generated.api_gateway"
-                directory = "build/generated-sources/jooq"
+                directory = "$projectDir/src/generated/java"
             }
         }
     }
