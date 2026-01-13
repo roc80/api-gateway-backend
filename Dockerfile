@@ -1,30 +1,25 @@
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# ---------- Builder ----------
+FROM eclipse-temurin:21-jdk-jammy AS builder
 
 ENV GRADLE_USER_HOME=/cache
+ENV GRADLE_OPTS="-Dorg.gradle.daemon=false"
+
 WORKDIR /workspace
 
-# 安装 bash 因为 gradlew 默认用 bash 或 sh，但 Alpine 的 sh 不兼容某些脚本
-RUN apk add --no-cache bash dos2unix
+RUN apt-get update && apt-get install -y dos2unix && rm -rf /var/lib/apt/lists/*
 
-# 复制全部项目
 COPY . .
 
-# 修复 gradlew 为 Linux 格式
-RUN dos2unix gradlew
-RUN chmod +x gradlew
+RUN dos2unix gradlew && chmod +x gradlew
 
-# 构建（含 jOOQ 和 bootJar）
 RUN --mount=type=cache,target=/cache \
-    ./gradlew jooqCodegen \
-    && ./gradlew bootJar --stacktrace
+    --mount=type=cache,target=/root/.gradle \
+    ./gradlew jooqCodegen bootJar --stacktrace
 
-# ---------------------------------------------------
-# Runtime 镜像（更小体积）
-# ---------------------------------------------------
-FROM eclipse-temurin:21-jdk-alpine AS runner
+# ---------- Runtime ----------
+FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
-
 COPY --from=builder /workspace/build/libs/*.jar app.jar
 
 EXPOSE 8080

@@ -22,8 +22,8 @@ public class CorsConfig implements WebMvcConfigurer {
     @Value("${cors.allowedHeaders:*}")
     private String allowedHeaders;
 
-    @Value("${cors.allowedExposeHeaders:*}")
-    private String allowedExposeHeaders;
+    @Value("${cors.exposedHeaders:*}")
+    private String exposedHeaders;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -36,7 +36,7 @@ public class CorsConfig implements WebMvcConfigurer {
         configuration.setAllowedOriginPatterns(Arrays.asList(allowedOriginPatterns.split(",")));
         configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
         configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
-        configuration.setExposedHeaders(Arrays.asList(allowedExposeHeaders.split(",")));
+        configuration.setExposedHeaders(Arrays.asList(exposedHeaders.split(",")));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

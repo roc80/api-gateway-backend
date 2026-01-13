@@ -12,7 +12,6 @@ services:
     ports:
       - "${DATABASE_EXPOSE_PORT}:5432"
     volumes:
-      # 左边是宿主机路径
       - "/data/api-gateway/db:${DATABASE_STORE}"
     restart: always
     networks:
@@ -26,15 +25,19 @@ services:
     hostname: web
     environment:
       LOG_PATH: ${LOG_PATH}
+
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_DB: ${DATABASE_DB}
       DATABASE_DEFAULT_SCHEMA: ${DATABASE_DEFAULT_SCHEMA}
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      DATABASE_HOST_PORT: ${DATABASE_HOST_PORT}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+
+      ALLOWED_ORIGIN_PATTERNS: ${ALLOWED_ORIGIN_PATTERNS}
       ALLOWED_METHODS: ${ALLOWED_METHODS}
       ALLOWED_HEADERS: ${ALLOWED_HEADERS}
-      ALLOWED_EXPOSE_HEADERS: ${ALLOWED_EXPOSE_HEADERS}
+      EXPOSED_HEADERS: ${EXPOSED_HEADERS}
+
     depends_on:
       - postgres
     ports:
