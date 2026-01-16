@@ -4,7 +4,8 @@ server:
     context-path: /api
     session:
       cookie:
-        same-site: lax
+#        same-site: lax todo@lp 联调时关闭同源策略
+        same-site: none
         secure: true
         http-only: true
 
