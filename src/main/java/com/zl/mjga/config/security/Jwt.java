@@ -88,19 +88,36 @@ public class Jwt {
 
     public void makeToken(
             HttpServletRequest request, HttpServletResponse response, String userIdentify) {
-        response.addCookie(buildJwtCookiePojo(request, userIdentify));
+        // todo@lp 只用于联调阶段允许cors
+        String contextPath = request.getContextPath();
+        String cookiePath = StringUtils.isNotEmpty(contextPath) ? contextPath : "/";
+        String token = create(userIdentify);
+
+        // 手动构建 Set-Cookie 响应头以支持 SameSite=None
+        // SameSite=None 必须配合 Secure 使用
+        String setCookieHeader = String.format(
+                "%s=%s; Path=%s; Max-Age=%d; %s; %s; SameSite=None",
+                cookieName,
+                token,
+                cookiePath,
+                expirationMin * 60,
+                "Secure",
+                "HttpOnly");
+        response.addHeader("Set-Cookie", setCookieHeader);
     }
 
     public void removeToken(HttpServletRequest request, HttpServletResponse response) {
+        // todo@lp 只用于联调阶段允许cors
         String contextPath = request.getContextPath();
         String cookiePath = StringUtils.isNotEmpty(contextPath) ? contextPath : "/";
 
-        Cookie cookieToRemove = new Cookie(cookieName, "");
-        cookieToRemove.setPath(cookiePath);
-        cookieToRemove.setMaxAge(0);
-        cookieToRemove.setSecure(request.isSecure());
-        cookieToRemove.setHttpOnly(true);
-
-        response.addCookie(cookieToRemove);
+        // 手动构建 Set-Cookie 响应头以支持 SameSite=None
+        String setCookieHeader = String.format(
+                "%s=; Path=%s; Max-Age=0; %s; %s; SameSite=None",
+                cookieName,
+                cookiePath,
+                "Secure",
+                "HttpOnly");
+        response.addHeader("Set-Cookie", setCookieHeader);
     }
 }

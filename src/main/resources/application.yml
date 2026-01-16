@@ -3,9 +3,9 @@ server:
   servlet:
     context-path: /api
     session:
+      # Servlet容器生成的session cookie
       cookie:
-#        same-site: lax todo@lp 联调时关闭同源策略
-        same-site: none
+        same-site: lax
         secure: true
         http-only: true
 
