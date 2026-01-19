@@ -8,6 +8,8 @@ import com.zl.mjga.model.urp.ERole;
 import com.zl.mjga.repository.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -16,6 +18,7 @@ import org.jooq.Result;
 import org.jooq.generated.api_gateway.tables.pojos.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +32,14 @@ public class UserRolePermissionService {
     private final UserRoleMapRepository userRoleMapRepository;
     private final PermissionRepository permissionRepository;
     private final RolePermissionMapRepository rolePermissionMapRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public void upsertUser(UserUpsertDto userUpsertDto) {
+    public void upsertUser(@Valid UserUpsertDto userUpsertDto) {
         User user = new User();
         BeanUtils.copyProperties(userUpsertDto, user);
+        if (!userUpsertDto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(userUpsertDto.getPassword()));
+        }
         userRepository.merge(user);
     }
 
