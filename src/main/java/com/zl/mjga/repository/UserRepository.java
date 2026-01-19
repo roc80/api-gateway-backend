@@ -8,6 +8,7 @@ import com.zl.mjga.dto.urp.PermissionDto;
 import com.zl.mjga.dto.urp.RoleDto;
 import com.zl.mjga.dto.urp.UserQueryDto;
 import com.zl.mjga.dto.urp.UserRolePermissionDto;
+
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.generated.api_gateway.tables.daos.*;
@@ -56,32 +57,14 @@ public class UserRepository extends UserDao {
     }
 
     public SelectJoinStep<Record> selectUserAgg() {
-        return ctx().select(
-                        USER.asterisk(),
+        return ctx().select(USER.asterisk(),
                         DSL.count().over().as("total_user"),
-                        multiset(
-                                        select(
-                                                        USER.role().asterisk(),
-                                                        multiset(
-                                                                        select(
-                                                                                        USER.role()
-                                                                                                .permission()
-                                                                                                .asterisk())
-                                                                                .from(USER.role())
-                                                                                .leftJoin(
-                                                                                        USER.role()
-                                                                                                .permission()))
-                                                                .convertFrom(
-                                                                        r ->
-                                                                                r.map(
-                                                                                        (record) ->
-                                                                                                record
-                                                                                                        .into(
-                                                                                                                PermissionDto
-                                                                                                                        .class)))
-                                                                .as("permissions"))
-                                                .from(USER)
-                                                .leftJoin(USER.role()))
+                        multiset(select(USER.role().asterisk(),
+                                multiset(select(USER.role().permission().asterisk())
+                                        .from(USER.role().permission()))
+                                        .convertFrom(r -> r.map((record) -> record.into(PermissionDto.class)))
+                                        .as("permissions"))
+                                .from(USER.role()))
                                 .convertFrom(r -> r.map((record) -> record.into(RoleDto.class)))
                                 .as("roles"))
                 .from(USER);
