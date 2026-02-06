@@ -1,7 +1,7 @@
 server:
   port: 8090
 cors:
-  allowedOriginPatterns: http://localhost:*
+  allowedOriginPatterns: "*"
   allowedMethods: GET,POST,PUT,DELETE,OPTIONS
   allowedHeaders: "*"
   exposedHeaders: "*"

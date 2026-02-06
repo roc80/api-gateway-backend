@@ -4,6 +4,7 @@ import static org.jooq.generated.api_gateway.tables.Role.ROLE;
 import static org.jooq.impl.DSL.*;
 
 import com.zl.mjga.dto.PageRequestDto;
+import com.zl.mjga.dto.urp.PermissionDto;
 import com.zl.mjga.dto.urp.RoleQueryDto;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,7 +39,11 @@ public class RoleRepository extends RoleDao {
         return ctx().select(
                         ROLE.asterisk(),
                         DSL.count(ROLE.ID).over().as("total_role"),
-                        multiset(select(ROLE.permission().asterisk()).from(ROLE.permission())))
+                        multiset(select(ROLE.permission().asterisk())
+                                .from(ROLE.permission()))
+                                .convertFrom(
+                                        r -> r.map(record -> record.into(PermissionDto.class)))
+                                .as("permissions"))
                 .from(ROLE)
                 .where(
                         CollectionUtils.isEmpty(roleQueryDto.getRoleIdList())
