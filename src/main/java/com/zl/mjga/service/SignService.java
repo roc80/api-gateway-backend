@@ -30,6 +30,9 @@ public class SignService {
             throw new BusinessException(
                     String.format("%s user not found", signInDto.getUsername()));
         }
+        if (!user.getEnable()) {
+            throw new BusinessException("user disabled");
+        }
         if (!passwordEncoder.matches(signInDto.getPassword(), user.getPassword())) {
             throw new BusinessException("password invalid");
         }

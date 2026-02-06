@@ -13,12 +13,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.generated.api_gateway.tables.pojos.*;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.zl.mjga.utils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,23 +37,47 @@ public class UserRolePermissionService {
     private final PasswordEncoder passwordEncoder;
 
     public void upsertUser(@Valid UserUpsertDto userUpsertDto) {
-        User user = new User();
-        BeanUtils.copyProperties(userUpsertDto, user);
-        if (!userUpsertDto.getPassword().isBlank()) {
+        User user;
+        if (userUpsertDto.getId() != null) {
+            user = userRepository.fetchOneById(userUpsertDto.getId());
+            if (user == null) {
+                throw new BusinessException("User not found with id: " + userUpsertDto.getId());
+            }
+        } else {
+            user = new User();
+        }
+        BeanUtils.copyPropertiesIgnoreBlank(userUpsertDto, user);
+        if (StringUtils.isNotBlank(userUpsertDto.getPassword())) {
             user.setPassword(passwordEncoder.encode(userUpsertDto.getPassword()));
         }
         userRepository.merge(user);
     }
 
     public void upsertRole(RoleUpsertDto roleUpsertDto) {
-        Role role = new Role();
-        BeanUtils.copyProperties(roleUpsertDto, role);
+        Role role;
+        if (roleUpsertDto.getId() != null) {
+            role = roleRepository.fetchOneById(roleUpsertDto.getId());
+            if (role == null) {
+                throw new BusinessException("Role not found with id: " + roleUpsertDto.getId());
+            }
+        } else {
+            role = new Role();
+        }
+        BeanUtils.copyPropertiesIgnoreBlank(roleUpsertDto, role);
         roleRepository.merge(role);
     }
 
     public void upsertPermission(PermissionUpsertDto permissionUpsertDto) {
-        Permission permission = new Permission();
-        BeanUtils.copyProperties(permissionUpsertDto, permission);
+        Permission permission;
+        if (permissionUpsertDto.getId() != null) {
+            permission = permissionRepository.fetchOneById(permissionUpsertDto.getId());
+            if (permission == null) {
+                throw new BusinessException("Permission not found with id: " + permissionUpsertDto.getId());
+            }
+        } else {
+            permission = new Permission();
+        }
+        BeanUtils.copyPropertiesIgnoreBlank(permissionUpsertDto, permission);
         permissionRepository.merge(permission);
     }
 
