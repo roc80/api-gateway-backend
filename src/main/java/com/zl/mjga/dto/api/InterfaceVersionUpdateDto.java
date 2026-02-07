@@ -13,13 +13,13 @@ public record InterfaceVersionUpdateDto(
         @Schema(description = "是否是当前版本") Boolean current,
         @Schema(description = "HTTP请求方法") String httpMethod,
         @Schema(description = "HTTP请求路径") String path,
-        @Schema(description = "HTTP请求头") JSONB requestHeaders,
-        @Schema(description = "HTTP请求参数") JSONB requestParams,
-        @Schema(description = "HTTP请求体") JSONB requestBody,
-        @Schema(description = "HTTP响应体") JSONB responseBody,
-        @Schema(description = "HTTP响应示例") JSONB responseExample,
+        @Schema(description = "HTTP请求头") String requestHeaders,
+        @Schema(description = "HTTP请求参数") String requestParams,
+        @Schema(description = "HTTP请求体") String requestBody,
+        @Schema(description = "HTTP响应体") String responseBody,
+        @Schema(description = "HTTP响应示例") String responseExample,
         @Schema(description = "CURL请求示例") String exampleCurl,
-        @Schema(description = "代码示例") JSONB exampleCode,
+        @Schema(description = "代码示例") String exampleCode,
         @Schema(description = "认证方式") String authType,
         @Schema(description = "是否允许调用") Boolean allowInvoke) {
     private static <T> void setIfNotNull(
@@ -29,18 +29,25 @@ public record InterfaceVersionUpdateDto(
         }
     }
 
+    private static void setJsonBIfNotNull(
+            String value, BiConsumer<ApiInterfaceVersion, JSONB> setter, ApiInterfaceVersion entity) {
+        if (value != null) {
+            setter.accept(entity, JSONB.jsonb(value));
+        }
+    }
+
     public void applyTo(ApiInterfaceVersion entity) {
         setIfNotNull(current, ApiInterfaceVersion::setIsCurrent, entity);
         setIfNotNull(httpMethod, ApiInterfaceVersion::setHttpMethod, entity);
         setIfNotNull(path, ApiInterfaceVersion::setPath, entity);
-        setIfNotNull(requestHeaders, ApiInterfaceVersion::setRequestHeaders, entity);
-        setIfNotNull(requestParams, ApiInterfaceVersion::setRequestParams, entity);
-        setIfNotNull(requestBody, ApiInterfaceVersion::setRequestBody, entity);
+        setJsonBIfNotNull(requestHeaders, ApiInterfaceVersion::setRequestHeaders, entity);
+        setJsonBIfNotNull(requestParams, ApiInterfaceVersion::setRequestParams, entity);
+        setJsonBIfNotNull(requestBody, ApiInterfaceVersion::setRequestBody, entity);
 
-        setIfNotNull(responseBody, ApiInterfaceVersion::setResponseBody, entity);
-        setIfNotNull(responseExample, ApiInterfaceVersion::setResponseExample, entity);
+        setJsonBIfNotNull(responseBody, ApiInterfaceVersion::setResponseBody, entity);
+        setJsonBIfNotNull(responseExample, ApiInterfaceVersion::setResponseExample, entity);
         setIfNotNull(exampleCurl, ApiInterfaceVersion::setExampleCurl, entity);
-        setIfNotNull(exampleCode, ApiInterfaceVersion::setExampleCode, entity);
+        setJsonBIfNotNull(exampleCode, ApiInterfaceVersion::setExampleCode, entity);
         setIfNotNull(authType, ApiInterfaceVersion::setAuthType, entity);
         setIfNotNull(allowInvoke, ApiInterfaceVersion::setAllowInvoke, entity);
     }

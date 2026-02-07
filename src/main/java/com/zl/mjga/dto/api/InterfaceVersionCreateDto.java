@@ -19,13 +19,13 @@ public record InterfaceVersionCreateDto(
                 @NotBlank(message = "HTTP请求方法不能为空") String httpMethod,
         @Schema(description = "HTTP请求路径", requiredMode = Schema.RequiredMode.REQUIRED)
                 @NotBlank(message = "HTTP请求路径不能为空") String path,
-        @Schema(description = "HTTP请求头") JSONB requestHeaders,
-        @Schema(description = "HTTP请求参数") JSONB requestParams,
-        @Schema(description = "HTTP请求体") JSONB requestBody,
-        @Schema(description = "HTTP响应体") JSONB responseBody,
-        @Schema(description = "HTTP响应示例") JSONB responseExample,
+        @Schema(description = "HTTP请求头") String requestHeaders,
+        @Schema(description = "HTTP请求参数") String requestParams,
+        @Schema(description = "HTTP请求体") String requestBody,
+        @Schema(description = "HTTP响应体") String responseBody,
+        @Schema(description = "HTTP响应示例") String responseExample,
         @Schema(description = "CURL请求示例") String exampleCurl,
-        @Schema(description = "代码示例") JSONB exampleCode,
+        @Schema(description = "代码示例") String exampleCode,
         @Schema(description = "认证方式") String authType) {
     public ApiInterfaceVersion toEntity() {
         return new ApiInterfaceVersion()
@@ -34,14 +34,18 @@ public record InterfaceVersionCreateDto(
                 .setIsCurrent(current)
                 .setHttpMethod(httpMethod)
                 .setPath(path)
-                .setRequestHeaders(requestHeaders)
-                .setRequestParams(requestParams)
-                .setRequestBody(requestBody)
-                .setResponseBody(responseBody)
-                .setResponseExample(responseExample)
+                .setRequestHeaders(stringToJsonB(requestHeaders))
+                .setRequestParams(stringToJsonB(requestParams))
+                .setRequestBody(stringToJsonB(requestBody))
+                .setResponseBody(stringToJsonB(responseBody))
+                .setResponseExample(stringToJsonB(responseExample))
                 .setExampleCurl(exampleCurl)
                 .setAllowInvoke(true)
-                .setExampleCode(exampleCode)
+                .setExampleCode(stringToJsonB(exampleCode))
                 .setAuthType(authType);
+    }
+
+    private static JSONB stringToJsonB(String value) {
+        return value != null ? JSONB.jsonb(value) : null;
     }
 }

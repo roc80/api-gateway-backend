@@ -2,7 +2,7 @@ server:
   port: 8090
 cors:
   allowedOriginPatterns: "*"
-  allowedMethods: GET,POST,PUT,DELETE,OPTIONS
+  allowedMethods: "*"
   allowedHeaders: "*"
   exposedHeaders: "*"
 

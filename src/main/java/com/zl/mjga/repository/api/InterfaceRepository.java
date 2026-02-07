@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.noCondition;
 
 import com.zl.mjga.dto.PageRequestDto;
 import com.zl.mjga.dto.api.InterfaceQueryDto;
+import com.zl.mjga.exception.BusinessException;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.jooq.generated.api_gateway.tables.ApiInterface;
 import org.jooq.generated.api_gateway.tables.daos.ApiInterfaceDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author roc
@@ -105,6 +107,7 @@ public class InterfaceRepository extends ApiInterfaceDao {
                 : conditions.stream().reduce(Condition::and).orElse(noCondition());
     }
 
+    @Transactional(rollbackFor = BusinessException.class)
     public void logicDelete(Long id) {
         ctx().update(ApiInterface.API_INTERFACE)
                 .set(ApiInterface.API_INTERFACE.DELETED, true)
@@ -112,6 +115,7 @@ public class InterfaceRepository extends ApiInterfaceDao {
                 .execute();
     }
 
+    @Transactional(rollbackFor = BusinessException.class)
     public void logicDelete(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return;

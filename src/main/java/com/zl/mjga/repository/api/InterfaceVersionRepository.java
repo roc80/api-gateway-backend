@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.noCondition;
 
 import com.zl.mjga.dto.PageRequestDto;
 import com.zl.mjga.dto.api.InterfaceVersionQueryDto;
+import com.zl.mjga.exception.BusinessException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
@@ -12,10 +13,12 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.jooq.Condition;
 import org.jooq.Configuration;
+import org.jooq.JSONB;
 import org.jooq.generated.api_gateway.tables.ApiInterfaceVersion;
 import org.jooq.generated.api_gateway.tables.daos.ApiInterfaceVersionDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author roc
@@ -28,6 +31,7 @@ public class InterfaceVersionRepository extends ApiInterfaceVersionDao {
         super(configuration);
     }
 
+    @Transactional(rollbackFor = BusinessException.class)
     public void logicDelete(@NotEmpty(message = "ID列表不能为空") List<Long> ids) {
         ctx().update(ApiInterfaceVersion.API_INTERFACE_VERSION)
                 .set(ApiInterfaceVersion.API_INTERFACE_VERSION.DELETED, true)
@@ -35,6 +39,7 @@ public class InterfaceVersionRepository extends ApiInterfaceVersionDao {
                 .execute();
     }
 
+    @Transactional(rollbackFor = BusinessException.class)
     public void logicDelete(@Positive(message = "接口版本ID必须为正整数") Long id) {
         ctx().update(ApiInterfaceVersion.API_INTERFACE_VERSION)
                 .set(ApiInterfaceVersion.API_INTERFACE_VERSION.DELETED, true)
@@ -95,7 +100,7 @@ public class InterfaceVersionRepository extends ApiInterfaceVersionDao {
         if (request.requestHeaders() != null) {
             conditions.add(
                     ApiInterfaceVersion.API_INTERFACE_VERSION.REQUEST_HEADERS.contains(
-                            request.requestHeaders()));
+                            JSONB.jsonb(request.requestHeaders())));
         }
         if (request.createTimeStart() != null) {
             conditions.add(
