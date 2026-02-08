@@ -11,14 +11,24 @@ import org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion;
  * @since 2025/12/31 17:35
  */
 public record InterfaceVersionCreateDto(
-        @Schema(description = "接口id", requiredMode = Schema.RequiredMode.REQUIRED) @Positive Long apiId,
+        @Schema(description = "接口id", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Positive(message =  "接口id必须是正整数")
+        Long apiId,
+
         @Schema(description = "接口版本", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotBlank(message = "接口版本不能为空") String version,
+        @NotBlank(message = "接口版本不能为空")
+        String version,
+
         @Schema(description = "是否是当前版本") Boolean current,
+
         @Schema(description = "HTTP请求方法", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotBlank(message = "HTTP请求方法不能为空") String httpMethod,
+        @NotBlank(message = "HTTP请求方法不能为空")
+        String httpMethod,
+
         @Schema(description = "HTTP请求路径", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotBlank(message = "HTTP请求路径不能为空") String path,
+        @NotBlank(message = "HTTP请求路径不能为空")
+        String path,
+
         @Schema(description = "HTTP请求头") String requestHeaders,
         @Schema(description = "HTTP请求参数") String requestParams,
         @Schema(description = "HTTP请求体") String requestBody,

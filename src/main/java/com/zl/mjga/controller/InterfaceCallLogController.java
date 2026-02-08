@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2025/12/31 17:21
  */
 @RestController
-@RequestMapping("/api/interfaces/logs")
+@RequestMapping("/interfaces/logs")
 @RequiredArgsConstructor
 @Validated
 public class InterfaceCallLogController {

@@ -1,7 +1,9 @@
 package com.zl.mjga.exception;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.firewall.RequestRejectedException;
@@ -10,12 +12,58 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler(value = {IllegalArgumentException.class})
+
+    @SuppressWarnings("NullableProblems")
+    @Override
+    @Nullable
+    public ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+        log.error("MethodArgumentNotValidException Handled  ===> ", ex);
+        ErrorResponseException errorResponseException =
+                new ErrorResponseException(
+                        status,
+                        ProblemDetail.forStatusAndDetail(status, ex.getMessage()),
+                        ex.getCause());
+        return handleExceptionInternal(
+                errorResponseException,
+                errorResponseException.getBody(),
+                errorResponseException.getHeaders(),
+                errorResponseException.getStatusCode(),
+                request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            @NonNull HttpMessageNotReadableException ex,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        log.error("HttpMessageNotReadableException Handled  ===> ", ex);
+        ErrorResponseException exception = new ErrorResponseException(
+                status,
+                ProblemDetail.forStatusAndDetail(status, ex.getMessage()),
+                ex.getCause());
+        return handleExceptionInternal(
+                exception,
+                exception.getBody(),
+                exception.getHeaders(),
+                exception.getStatusCode(),
+                request
+        );
+    }
+
+    // ======================下面需要手动指定异常处理逻辑，上面扩展父类逻辑===================================================
+
+    @ExceptionHandler(value = {IllegalArgumentException.class, MethodArgumentTypeMismatchException.class})
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Bad Request Handled  ===> ", ex);
         ErrorResponseException errorResponseException =
@@ -39,27 +87,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 new ErrorResponseException(
                         HttpStatus.BAD_REQUEST,
                         ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage()),
-                        ex.getCause());
-        return handleExceptionInternal(
-                errorResponseException,
-                errorResponseException.getBody(),
-                errorResponseException.getHeaders(),
-                errorResponseException.getStatusCode(),
-                request);
-    }
-
-    @SuppressWarnings("NullableProblems")
-    @Override
-    @Nullable public ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
-        log.error("MethodArgumentNotValidException Handled  ===> ", ex);
-        ErrorResponseException errorResponseException =
-                new ErrorResponseException(
-                        status,
-                        ProblemDetail.forStatusAndDetail(status, ex.getMessage()),
                         ex.getCause());
         return handleExceptionInternal(
                 errorResponseException,

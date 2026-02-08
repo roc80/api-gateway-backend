@@ -7,11 +7,14 @@ import com.zl.mjga.dto.api.InterfaceVersionCreateDto;
 import com.zl.mjga.dto.api.InterfaceVersionDto;
 import com.zl.mjga.dto.api.InterfaceVersionQueryDto;
 import com.zl.mjga.dto.api.InterfaceVersionUpdateDto;
+import com.zl.mjga.exception.BusinessException;
+import com.zl.mjga.repository.api.InterfaceRepository;
 import com.zl.mjga.repository.api.InterfaceVersionRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.jooq.generated.api_gateway.tables.pojos.ApiInterface;
 import org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 public class InterfaceVersionService {
 
     private final InterfaceVersionRepository interfaceVersionRepository;
+    private final InterfaceRepository interfaceRepository;
 
     public InterfaceVersionDto getInterfaceVersionById(
             @Positive(message = "接口版本ID必须为正整数") Long id) {
@@ -45,9 +49,27 @@ public class InterfaceVersionService {
     /** todo@lp 更新接口版本后，新增一条记录。 */
     public InterfaceVersionDto createInterfaceVersion(
             @Valid InterfaceVersionCreateDto interfaceVersionCreateDto) {
+        Long apiId = interfaceVersionCreateDto.apiId();
+        String apiVersion = interfaceVersionCreateDto.version();
+        validateInterfaceVersion(apiId, apiVersion);
+
         ApiInterfaceVersion entity = interfaceVersionCreateDto.toEntity();
         interfaceVersionRepository.insert(entity);
         return InterfaceVersionDto.fromEntity(entity);
+    }
+
+    /**
+     * 校验数据库中的约束
+     */
+    private void validateInterfaceVersion(Long apiId, String apiVersion) {
+        ApiInterface interfaceEntity = interfaceRepository.findById(apiId);
+        if (interfaceEntity == null) {
+            throw new IllegalArgumentException("接口id: " + apiId + "不存在");
+        }
+        ApiInterfaceVersion interfaceVersionEntity = interfaceVersionRepository.findByApiIdAndVersion(apiId, apiVersion);
+        if (interfaceVersionEntity != null) {
+            throw new IllegalArgumentException("接口id: " + apiId + "接口版本: " + apiVersion + "已存在");
+        }
     }
 
     public InterfaceVersionDto updateInterfaceVersion(
@@ -55,7 +77,7 @@ public class InterfaceVersionService {
             @Valid InterfaceVersionUpdateDto interfaceVersionUpdateDto) {
         ApiInterfaceVersion entity = interfaceVersionRepository.fetchOneById(id);
         if (entity == null) {
-            throw new IllegalArgumentException(id + "对应的接口版本不存在");
+            throw new IllegalArgumentException("id: " + id + " 不存在");
         }
         interfaceVersionUpdateDto.applyTo(entity);
         interfaceVersionRepository.update(entity);

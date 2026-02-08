@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2025/12/31 17:21
  */
 @RestController
-@RequestMapping("/api/interfaces/versions")
+@RequestMapping("/interfaces/versions")
 @RequiredArgsConstructor
 @Validated
 public class InterfaceVersionController {

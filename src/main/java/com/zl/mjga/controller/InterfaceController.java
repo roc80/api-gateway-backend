@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2025/12/25 20:14
  */
 @RestController
-@RequestMapping("/api/interfaces")
+@RequestMapping("/interfaces")
 @RequiredArgsConstructor
 @Validated
 public class InterfaceController {
