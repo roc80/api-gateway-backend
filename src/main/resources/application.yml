@@ -21,7 +21,7 @@ logging:
 
 cors:
   allowedOriginPatterns: ${ALLOWED_ORIGIN_PATTERNS:*}
-  allowedMethods: ${ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+  allowedMethods: ${ALLOWED_METHODS:*}
   allowedHeaders: ${ALLOWED_HEADERS:*}
   exposedHeaders: ${EXPOSED_HEADERS:*}
 
