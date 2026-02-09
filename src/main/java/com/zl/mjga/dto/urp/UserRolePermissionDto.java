@@ -22,7 +22,6 @@ public class UserRolePermissionDto {
     private Boolean enable;
     private List<RoleDto> roles = new LinkedList<>();
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private OffsetDateTime createTime;
 
     public Set<PermissionDto> getPermissions() {
