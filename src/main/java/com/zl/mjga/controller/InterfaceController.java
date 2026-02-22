@@ -1,5 +1,7 @@
 package com.zl.mjga.controller;
 
+import com.roc.api_mock_starter.controller.MockController;
+import com.roc.api_mock_starter.model.MockUser;
 import com.zl.mjga.dto.PageRequestDto;
 import com.zl.mjga.dto.PageResponseDto;
 import com.zl.mjga.dto.api.*;
@@ -89,5 +91,15 @@ public class InterfaceController {
     @DeleteMapping("/batch")
     public void batchDelete(@Valid @RequestBody InterfaceBatchDeleteDto batchDeleteDto) {
         interfaceService.batchDeleteInterfaces(batchDeleteDto.ids());
+    }
+
+    @Operation(summary = "在线调用API", description = "在线调用API")
+    @DeleteMapping("/invoke")
+    public void invoke(@Valid @RequestBody InterfaceBatchDeleteDto batchDeleteDto) {
+        MockUser mockUser = new MockUser();
+        mockUser.setName("roc");
+        MockController mockController = new MockController();
+        mockController.mock(mockUser);
+
     }
 }
