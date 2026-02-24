@@ -57,7 +57,6 @@ configurations {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
@@ -80,7 +79,6 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.github.ben-manes.caffeine:caffeine")
-    implementation("com.roc:api_mock_starter:0.0.1")
 
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter:$testcontainersVersion")
