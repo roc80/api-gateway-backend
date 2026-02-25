@@ -1,5 +1,7 @@
 package com.zl.mjga.controller;
 
+import com.roc.apiclientsdk.client.ApiClient;
+import com.roc.apiclientsdk.module.User;
 import com.zl.mjga.dto.PageRequestDto;
 import com.zl.mjga.dto.PageResponseDto;
 import com.zl.mjga.dto.api.*;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class InterfaceController {
 
     private final InterfaceService interfaceService;
+    private final ApiClient apiClient;
 
     /** 创建接口 */
     @Operation(summary = "创建接口", description = "创建新的接口信息")
@@ -90,4 +93,12 @@ public class InterfaceController {
     public void batchDelete(@Valid @RequestBody InterfaceBatchDeleteDto batchDeleteDto) {
         interfaceService.batchDeleteInterfaces(batchDeleteDto.ids());
     }
+
+    @PostMapping("/invoke")
+    public Object invoke() {
+        User user = new User();
+        // todo 前端传递参数过来
+        return apiClient.getName(user);
+    }
+
 }
