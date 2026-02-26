@@ -94,10 +94,9 @@ public class InterfaceController {
         interfaceService.batchDeleteInterfaces(batchDeleteDto.ids());
     }
 
-    @PostMapping("/invoke")
-    public Object invoke() {
-        User user = new User();
-        // todo 前端传递参数过来
+    @Operation(summary = "模拟API", description = "传输用户，返回该用户的名称")
+    @PostMapping("/invoke/mock/name")
+    public Object invoke(@Parameter(description = "模拟用户") @RequestBody User user) {
         return apiClient.getName(user);
     }
 
