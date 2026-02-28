@@ -88,6 +88,16 @@ public class User extends TableImpl<UserRecord> {
      */
     public final TableField<UserRecord, Boolean> ENABLE = createField(DSL.name("enable"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field(DSL.raw("true"), SQLDataType.BOOLEAN)), this, "");
 
+    /**
+     * The column <code>api_gateway.user.access_key</code>. 用户访问凭证
+     */
+    public final TableField<UserRecord, String> ACCESS_KEY = createField(DSL.name("access_key"), SQLDataType.VARCHAR(1024), this, "用户访问凭证");
+
+    /**
+     * The column <code>api_gateway.user.secret_key</code>. 用户访问密钥
+     */
+    public final TableField<UserRecord, String> SECRET_KEY = createField(DSL.name("secret_key"), SQLDataType.VARCHAR(1024), this, "用户访问密钥");
+
     private User(Name alias, Table<UserRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }

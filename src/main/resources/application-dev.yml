@@ -16,6 +16,6 @@ spring:
 
 api:
   client:
-    access-key: 123
-    secret-key: 456
+    access-key: placeholder
+    secret-key: placeholder
 

@@ -160,4 +160,34 @@ public class UserDao extends AbstractSpringDAOImpl<UserRecord, org.jooq.generate
     public List<org.jooq.generated.api_gateway.tables.pojos.User> fetchByEnable(Boolean... values) {
         return fetch(User.USER.ENABLE, values);
     }
+
+    /**
+     * Fetch records that have <code>access_key BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<org.jooq.generated.api_gateway.tables.pojos.User> fetchRangeOfAccessKey(String lowerInclusive, String upperInclusive) {
+        return fetchRange(User.USER.ACCESS_KEY, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>access_key IN (values)</code>
+     */
+    public List<org.jooq.generated.api_gateway.tables.pojos.User> fetchByAccessKey(String... values) {
+        return fetch(User.USER.ACCESS_KEY, values);
+    }
+
+    /**
+     * Fetch records that have <code>secret_key BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<org.jooq.generated.api_gateway.tables.pojos.User> fetchRangeOfSecretKey(String lowerInclusive, String upperInclusive) {
+        return fetchRange(User.USER.SECRET_KEY, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>secret_key IN (values)</code>
+     */
+    public List<org.jooq.generated.api_gateway.tables.pojos.User> fetchBySecretKey(String... values) {
+        return fetch(User.USER.SECRET_KEY, values);
+    }
 }

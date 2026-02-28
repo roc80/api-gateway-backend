@@ -22,6 +22,8 @@ public class User implements Serializable {
     private OffsetDateTime createTime;
     private String password;
     private Boolean enable;
+    private String accessKey;
+    private String secretKey;
 
     public User() {}
 
@@ -32,6 +34,8 @@ public class User implements Serializable {
         this.createTime = value.createTime;
         this.password = value.password;
         this.enable = value.enable;
+        this.accessKey = value.accessKey;
+        this.secretKey = value.secretKey;
     }
 
     public User(
@@ -40,7 +44,9 @@ public class User implements Serializable {
         String avatar,
         OffsetDateTime createTime,
         String password,
-        Boolean enable
+        Boolean enable,
+        String accessKey,
+        String secretKey
     ) {
         this.id = id;
         this.username = username;
@@ -48,6 +54,8 @@ public class User implements Serializable {
         this.createTime = createTime;
         this.password = password;
         this.enable = enable;
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
     }
 
     /**
@@ -140,6 +148,36 @@ public class User implements Serializable {
         return this;
     }
 
+    /**
+     * Getter for <code>api_gateway.user.access_key</code>. 用户访问凭证
+     */
+    public String getAccessKey() {
+        return this.accessKey;
+    }
+
+    /**
+     * Setter for <code>api_gateway.user.access_key</code>. 用户访问凭证
+     */
+    public User setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
+        return this;
+    }
+
+    /**
+     * Getter for <code>api_gateway.user.secret_key</code>. 用户访问密钥
+     */
+    public String getSecretKey() {
+        return this.secretKey;
+    }
+
+    /**
+     * Setter for <code>api_gateway.user.secret_key</code>. 用户访问密钥
+     */
+    public User setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -185,6 +223,18 @@ public class User implements Serializable {
         }
         else if (!this.enable.equals(other.enable))
             return false;
+        if (this.accessKey == null) {
+            if (other.accessKey != null)
+                return false;
+        }
+        else if (!this.accessKey.equals(other.accessKey))
+            return false;
+        if (this.secretKey == null) {
+            if (other.secretKey != null)
+                return false;
+        }
+        else if (!this.secretKey.equals(other.secretKey))
+            return false;
         return true;
     }
 
@@ -198,6 +248,8 @@ public class User implements Serializable {
         result = prime * result + ((this.createTime == null) ? 0 : this.createTime.hashCode());
         result = prime * result + ((this.password == null) ? 0 : this.password.hashCode());
         result = prime * result + ((this.enable == null) ? 0 : this.enable.hashCode());
+        result = prime * result + ((this.accessKey == null) ? 0 : this.accessKey.hashCode());
+        result = prime * result + ((this.secretKey == null) ? 0 : this.secretKey.hashCode());
         return result;
     }
 
@@ -211,6 +263,8 @@ public class User implements Serializable {
         sb.append(", ").append(createTime);
         sb.append(", ").append(password);
         sb.append(", ").append(enable);
+        sb.append(", ").append(accessKey);
+        sb.append(", ").append(secretKey);
 
         sb.append(")");
         return sb.toString();

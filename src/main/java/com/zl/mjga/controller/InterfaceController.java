@@ -1,17 +1,21 @@
 package com.zl.mjga.controller;
 
 import com.roc.apiclientsdk.client.ApiClient;
-import com.roc.apiclientsdk.module.User;
 import com.zl.mjga.dto.PageRequestDto;
 import com.zl.mjga.dto.PageResponseDto;
 import com.zl.mjga.dto.api.*;
+import com.zl.mjga.repository.UserRepository;
 import com.zl.mjga.service.InterfaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+
+import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+
+import org.jooq.generated.api_gateway.tables.pojos.User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +32,7 @@ import org.springframework.web.bind.annotation.*;
 public class InterfaceController {
 
     private final InterfaceService interfaceService;
-    private final ApiClient apiClient;
+    private final UserRepository userRepository;
 
     /** 创建接口 */
     @Operation(summary = "创建接口", description = "创建新的接口信息")
@@ -96,8 +100,10 @@ public class InterfaceController {
 
     @Operation(summary = "模拟API", description = "传输用户，返回该用户的名称")
     @PostMapping("/invoke/mock/name")
-    public Object invoke(@Parameter(description = "模拟用户") @RequestBody User user) {
-        return apiClient.getName(user);
+    public Object invoke(@Parameter(description = "模拟用户") @RequestBody com.roc.apiclientsdk.module.User paramUser, Principal principal) {
+        String name = principal.getName();
+        User loginUser = userRepository.fetchOneByUsername(name);
+        return new ApiClient(loginUser.getAccessKey(), loginUser.getSecretKey()).getName(paramUser);
     }
 
 }

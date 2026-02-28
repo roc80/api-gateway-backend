@@ -109,6 +109,36 @@ public class UserRecord extends UpdatableRecordImpl<UserRecord> {
         return (Boolean) get(5);
     }
 
+    /**
+     * Setter for <code>api_gateway.user.access_key</code>. 用户访问凭证
+     */
+    public UserRecord setAccessKey(String value) {
+        set(6, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>api_gateway.user.access_key</code>. 用户访问凭证
+     */
+    public String getAccessKey() {
+        return (String) get(6);
+    }
+
+    /**
+     * Setter for <code>api_gateway.user.secret_key</code>. 用户访问密钥
+     */
+    public UserRecord setSecretKey(String value) {
+        set(7, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>api_gateway.user.secret_key</code>. 用户访问密钥
+     */
+    public String getSecretKey() {
+        return (String) get(7);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -132,7 +162,7 @@ public class UserRecord extends UpdatableRecordImpl<UserRecord> {
     /**
      * Create a detached, initialised UserRecord
      */
-    public UserRecord(Long id, String username, String avatar, OffsetDateTime createTime, String password, Boolean enable) {
+    public UserRecord(Long id, String username, String avatar, OffsetDateTime createTime, String password, Boolean enable, String accessKey, String secretKey) {
         super(User.USER);
 
         setId(id);
@@ -141,6 +171,8 @@ public class UserRecord extends UpdatableRecordImpl<UserRecord> {
         setCreateTime(createTime);
         setPassword(password);
         setEnable(enable);
+        setAccessKey(accessKey);
+        setSecretKey(secretKey);
         resetChangedOnNotNull();
     }
 
@@ -157,6 +189,8 @@ public class UserRecord extends UpdatableRecordImpl<UserRecord> {
             setCreateTime(value.getCreateTime());
             setPassword(value.getPassword());
             setEnable(value.getEnable());
+            setAccessKey(value.getAccessKey());
+            setSecretKey(value.getSecretKey());
             resetChangedOnNotNull();
         }
     }
