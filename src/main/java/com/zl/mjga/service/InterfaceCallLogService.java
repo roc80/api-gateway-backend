@@ -40,7 +40,6 @@ public class InterfaceCallLogService {
         return PageResponseDto.fromEntities(total, entities, InterfaceCallLogDto::fromEntity);
     }
 
-    /** todo@lp 调用接口后新增一条日志 */
     public InterfaceCallLogDto createInterfaceCallLog(
             @Valid InterfaceCallLogCreateDto interfaceCallLogCreateDto) {
         ApiInterfaceCallLog entity = interfaceCallLogCreateDto.toEntity();

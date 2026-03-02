@@ -46,7 +46,6 @@ public class InterfaceVersionService {
         return PageResponseDto.fromEntities(total, entities, InterfaceVersionDto::fromEntity);
     }
 
-    /** todo@lp 更新接口版本后，新增一条记录。 */
     public InterfaceVersionDto createInterfaceVersion(
             @Valid InterfaceVersionCreateDto interfaceVersionCreateDto) {
         Long apiId = interfaceVersionCreateDto.apiId();
