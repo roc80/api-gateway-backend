@@ -5,6 +5,9 @@ import com.zl.mjga.dto.sign.SignUpDto;
 import com.zl.mjga.exception.BusinessException;
 import com.zl.mjga.model.urp.ERole;
 import com.zl.mjga.repository.UserRepository;
+
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +51,21 @@ public class SignService {
         User user = new User();
         user.setUsername(signUpDto.getUsername());
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
+        genAkSk(user);
         userRepository.insert(user);
         User insertUser = userRepository.fetchOneByUsername(signUpDto.getUsername());
         userRolePermissionService.bindRoleModuleToUser(insertUser.getId(), List.of(ERole.GENERAL));
+    }
+
+    private void genAkSk(User user) {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] bytes = new byte[20];
+        secureRandom.nextBytes(bytes);
+        String accessKey = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        user.setAccessKey(accessKey);
+        bytes = new byte[32];
+        secureRandom.nextBytes(bytes);
+        String secretKey = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        user.setSecretKey(secretKey);
     }
 }
