@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author lipeng
+ * @author roc
  * @since 2026/2/25 13:49
  */
 public class SdkUnitTest {

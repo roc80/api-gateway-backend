@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Positive;
 import java.util.List;
 
 /**
- * @author lipeng
+ * @author roc
  * @since 2026/1/4 11:13
  */
 @Schema(description = "批量删除接口版本请求")

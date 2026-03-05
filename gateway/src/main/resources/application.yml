@@ -9,15 +9,15 @@ spring:
     gateway:
       # 路由配置
       routes:
-        # 后端服务路由
+        - id: mock_api
+          uri: http://localhost:8010
+          predicates:
+            - Path=/api/name
         - id: backend_route
           uri: http://localhost:8080
           predicates:
             - Path=/api/**
-          filters:
-            - StripPrefix=1
 
-      # 全局跨域配置
       globalcors:
         cors-configurations:
           '[/**]':
@@ -33,7 +33,6 @@ spring:
             allowCredentials: true
             maxAge: 3600
 
-# 日志配置
 logging:
   level:
     org:
