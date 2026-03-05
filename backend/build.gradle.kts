@@ -103,6 +103,10 @@ tasks.withType<BootJar> {
     archiveFileName.set("backend-app.jar")
 }
 
+tasks.bootRun {
+    systemProperty("spring.profiles.active", "dev")
+}
+
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }

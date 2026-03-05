@@ -57,9 +57,3 @@ subprojects {
         dependsOn(tasks.withType<Test>())
     }
 }
-
-tasks.register("startAll") {
-    group = "application"
-    description = "并行启动 backend 和 gateway 服务"
-    dependsOn(":backend:bootRun", ":gateway:bootRun")
-}
