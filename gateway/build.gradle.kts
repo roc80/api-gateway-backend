@@ -5,9 +5,11 @@ plugins {
     id("io.spring.dependency-management")
 }
 
+val springCloudVersion = providers.gradleProperty("springCloudVersion").get()
+
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${rootProject.extra["springCloudVersion"]}")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
     }
 }
 

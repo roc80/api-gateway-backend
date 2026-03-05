@@ -1,4 +1,3 @@
-// BootJar 需要显式导入
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -6,12 +5,48 @@ plugins {
     `java-library`
     id("org.springframework.boot")
     id("io.spring.dependency-management")
-    id("org.springdoc.openapi-gradle-plugin")
-    id("org.jooq.jooq-codegen-gradle")
-    id("jacoco")
+    id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
+    id("org.jooq.jooq-codegen-gradle") version "3.19.24"
+    id("pmd")
 }
 
 description = "API Gateway Backend - 业务服务模块"
+
+val jooqVersion = providers.gradleProperty("jooqVersion").get()
+val testcontainersVersion = providers.gradleProperty("testcontainersVersion").get()
+
+val dbUrl by extra("jdbc:postgresql://localhost:5432/api_gateway")
+val dbUser by extra("postgres")
+val dbPassword by extra("123456")
+val dbDockerContainer by extra("api-gateway-postgres-dev")
+
+pmd {
+    toolVersion = "7.15.0"
+    rulesMinimumPriority.set(5)
+    ruleSetFiles = files("../pmd-rules.xml")
+}
+
+fun executeCommand(
+    vararg command: String,
+    input: File? = null,
+): String {
+    val pb = ProcessBuilder(*command)
+    input?.let { pb.redirectInput(ProcessBuilder.Redirect.from(it)) }
+    val process = pb.start()
+    try {
+        val output = process.inputStream.bufferedReader().use { it.readText() }
+        val exitCode = process.waitFor()
+        if (exitCode != 0) {
+            val error = process.errorStream.bufferedReader().use { it.readText() }
+            throw GradleException("Command failed: ${command.joinToString(" ")}\nError: $error")
+        }
+        return output
+    } finally {
+        process.destroy()
+    }
+}
+
+fun escapeSqlString(str: String): String = str.replace("'", "''").replace("\\", "\\\\")
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -27,16 +62,16 @@ dependencies {
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
     implementation("com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.4.0")
-    implementation("org.jooq:jooq-meta:${rootProject.extra["jooqVersion"]}")
+    implementation("org.jooq:jooq-meta:$jooqVersion")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("com.roc:api-client-sdk:0.0.1")
 
-    testImplementation("org.testcontainers:testcontainers:${rootProject.extra["testcontainersVersion"]}")
-    testImplementation("org.testcontainers:testcontainers-junit-jupiter:${rootProject.extra["testcontainersVersion"]}")
-    testImplementation("org.testcontainers:testcontainers-postgresql:${rootProject.extra["testcontainersVersion"]}")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter:$testcontainersVersion")
+    testImplementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
     testImplementation("org.springframework.boot:spring-boot-testcontainers") {
         exclude(group = "org.testcontainers", module = "testcontainers")
     }
@@ -48,8 +83,8 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
 
     jooqCodegen("org.postgresql:postgresql")
-    jooqCodegen("org.jooq:jooq-codegen:${rootProject.extra["jooqVersion"]}")
-    jooqCodegen("org.jooq:jooq-meta-extensions:${rootProject.extra["jooqVersion"]}")
+    jooqCodegen("org.jooq:jooq-codegen:3.19.24")
+    jooqCodegen("org.jooq:jooq-meta-extensions:3.19.24")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.projectlombok:lombok")
     api("org.jspecify:jspecify:1.0.0")
@@ -81,14 +116,13 @@ jacoco {
     reportsDirectory.set(layout.buildDirectory.dir("reports/jacoco"))
 }
 
-// JOOQ 配置
 jooq {
     configuration {
         jdbc {
             driver = "org.postgresql.Driver"
-            url = rootProject.extra["dbUrl"] as String
-            user = rootProject.extra["dbUser"] as String
-            password = rootProject.extra["dbPassword"] as String
+            url = dbUrl
+            user = dbUser
+            password = dbPassword
         }
         generator {
             database {
@@ -112,40 +146,13 @@ jooq {
     }
 }
 
-fun executeCommand(
-    vararg command: String,
-    input: java.io.File? = null,
-): String {
-    val pb = ProcessBuilder(*command)
-    input?.let { pb.redirectInput(ProcessBuilder.Redirect.from(it)) }
-    val process = pb.start()
-    try {
-        val output = process.inputStream.bufferedReader().use { it.readText() }
-        val exitCode = process.waitFor()
-        if (exitCode != 0) {
-            val error = process.errorStream.bufferedReader().use { it.readText() }
-            throw GradleException("Command failed: ${command.joinToString(" ")}\nError: $error")
-        }
-        return output
-    } finally {
-        process.destroy()
-    }
-}
-
-fun escapeSqlString(str: String): String = str.replace("'", "''").replace("\\", "\\\\")
-
 tasks.register("flywayMigrateDocker") {
     group = "database"
     description = "Execute Flyway migrations using Docker"
 
     doLast {
         val migrationDir = file("src/main/resources/db/migration")
-        val dbUrl = rootProject.extra["dbUrl"] as String
-        val dbUser = rootProject.extra["dbUser"] as String
-        val dbPassword = rootProject.extra["dbPassword"] as String
-        val dbDockerContainer = rootProject.extra["dbDockerContainer"] as String
 
-        // 检查容器是否运行
         val psResult =
             executeCommand(
                 "docker",
@@ -211,14 +218,14 @@ tasks.register("flywayMigrateDocker") {
         val existingMigrations =
             existingMigrationsResult
                 .lines()
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
+                .map { line -> line.trim() }
+                .filter { line -> line.isNotEmpty() }
                 .toSet()
 
         migrationDir
             .listFiles()
-            ?.filter { it.extension == "sql" }
-            ?.sortedBy { it.name }
+            ?.filter { file -> file.extension == "sql" }
+            ?.sortedBy { file -> file.name }
             ?.forEach { file ->
                 if (existingMigrations.contains(file.name)) {
                     println("Skipping: ${file.name}")
@@ -256,16 +263,13 @@ tasks.register("flywayMigrateDocker") {
                         .substringBefore(".sql")
                         .replace("_", " ")
 
-                val escapedScriptName = escapeSqlString(file.name)
-                val escapedVersion = escapeSqlString(version)
-                val escapedDescription = escapeSqlString(description)
-
                 val insertSql =
                     """
                     INSERT INTO api_gateway.flyway_schema_history
                     (installed_rank, version, description, type, script, installed_by, installed_on, execution_time, success)
                     VALUES ((SELECT COALESCE(MAX(installed_rank), 0) + 1 FROM api_gateway.flyway_schema_history),
-                        '$escapedVersion', '$escapedDescription', 'SQL', '$escapedScriptName', '$dbUser', CURRENT_TIMESTAMP, $executionTime, true)
+                        '${escapeSqlString(version)}', '${escapeSqlString(description)}', 'SQL',
+                        '${escapeSqlString(file.name)}', '$dbUser', CURRENT_TIMESTAMP, $executionTime, true)
                     """.trimIndent()
 
                 executeCommand(
