@@ -30,7 +30,9 @@ public record InterfaceVersionUpdateDto(
     }
 
     private static void setJsonBIfNotNull(
-            String value, BiConsumer<ApiInterfaceVersion, JSONB> setter, ApiInterfaceVersion entity) {
+            String value,
+            BiConsumer<ApiInterfaceVersion, JSONB> setter,
+            ApiInterfaceVersion entity) {
         if (value != null) {
             setter.accept(entity, JSONB.jsonb(value));
         }

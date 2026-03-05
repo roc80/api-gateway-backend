@@ -6,10 +6,10 @@ import com.zl.mjga.dto.urp.*;
 import com.zl.mjga.exception.BusinessException;
 import com.zl.mjga.model.urp.ERole;
 import com.zl.mjga.repository.*;
+import com.zl.mjga.utils.BeanUtils;
+import jakarta.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -19,8 +19,6 @@ import org.jooq.Result;
 import org.jooq.generated.api_gateway.tables.pojos.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.zl.mjga.utils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,7 +70,8 @@ public class UserRolePermissionService {
         if (permissionUpsertDto.getId() != null) {
             permission = permissionRepository.fetchOneById(permissionUpsertDto.getId());
             if (permission == null) {
-                throw new BusinessException("Permission not found with id: " + permissionUpsertDto.getId());
+                throw new BusinessException(
+                        "Permission not found with id: " + permissionUpsertDto.getId());
             }
         } else {
             permission = new Permission();

@@ -8,10 +8,8 @@ import com.zl.mjga.exception.BusinessException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jooq.Condition;
 import org.jooq.Configuration;
@@ -50,7 +48,7 @@ public class InterfaceVersionRepository extends ApiInterfaceVersionDao {
     }
 
     public List<org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion>
-    fetchByPageRequestDto(@Valid PageRequestDto<InterfaceVersionQueryDto> pageRequestDto) {
+            fetchByPageRequestDto(@Valid PageRequestDto<InterfaceVersionQueryDto> pageRequestDto) {
         Condition condition = buildCondition(pageRequestDto.getRequest());
 
         return ctx().selectFrom(ApiInterfaceVersion.API_INTERFACE_VERSION)
@@ -142,11 +140,13 @@ public class InterfaceVersionRepository extends ApiInterfaceVersionDao {
         return count == null ? 0 : count;
     }
 
-    public org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion findByApiIdAndVersion(Long apiId, String apiVersion) {
+    public org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion findByApiIdAndVersion(
+            Long apiId, String apiVersion) {
         return ctx().selectFrom(ApiInterfaceVersion.API_INTERFACE_VERSION)
                 .where(ApiInterfaceVersion.API_INTERFACE_VERSION.DELETED.eq(false))
                 .and(ApiInterfaceVersion.API_INTERFACE_VERSION.API_ID.eq(apiId))
                 .and(ApiInterfaceVersion.API_INTERFACE_VERSION.VERSION.eq(apiVersion))
-                .fetchOneInto(org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion.class);
+                .fetchOneInto(
+                        org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion.class);
     }
 }

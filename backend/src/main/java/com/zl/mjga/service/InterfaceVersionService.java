@@ -7,7 +7,6 @@ import com.zl.mjga.dto.api.InterfaceVersionCreateDto;
 import com.zl.mjga.dto.api.InterfaceVersionDto;
 import com.zl.mjga.dto.api.InterfaceVersionQueryDto;
 import com.zl.mjga.dto.api.InterfaceVersionUpdateDto;
-import com.zl.mjga.exception.BusinessException;
 import com.zl.mjga.repository.api.InterfaceRepository;
 import com.zl.mjga.repository.api.InterfaceVersionRepository;
 import jakarta.validation.Valid;
@@ -57,15 +56,14 @@ public class InterfaceVersionService {
         return InterfaceVersionDto.fromEntity(entity);
     }
 
-    /**
-     * 校验数据库中的约束
-     */
+    /** 校验数据库中的约束 */
     private void validateInterfaceVersion(Long apiId, String apiVersion) {
         ApiInterface interfaceEntity = interfaceRepository.findById(apiId);
         if (interfaceEntity == null) {
             throw new IllegalArgumentException("接口id: " + apiId + "不存在");
         }
-        ApiInterfaceVersion interfaceVersionEntity = interfaceVersionRepository.findByApiIdAndVersion(apiId, apiVersion);
+        ApiInterfaceVersion interfaceVersionEntity =
+                interfaceVersionRepository.findByApiIdAndVersion(apiId, apiVersion);
         if (interfaceVersionEntity != null) {
             throw new IllegalArgumentException("接口id: " + apiId + "接口版本: " + apiVersion + "已存在");
         }

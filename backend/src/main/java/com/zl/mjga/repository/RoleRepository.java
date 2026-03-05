@@ -39,10 +39,8 @@ public class RoleRepository extends RoleDao {
         return ctx().select(
                         ROLE.asterisk(),
                         DSL.count(ROLE.ID).over().as("total_role"),
-                        multiset(select(ROLE.permission().asterisk())
-                                .from(ROLE.permission()))
-                                .convertFrom(
-                                        r -> r.map(record -> record.into(PermissionDto.class)))
+                        multiset(select(ROLE.permission().asterisk()).from(ROLE.permission()))
+                                .convertFrom(r -> r.map(record -> record.into(PermissionDto.class)))
                                 .as("permissions"))
                 .from(ROLE)
                 .where(

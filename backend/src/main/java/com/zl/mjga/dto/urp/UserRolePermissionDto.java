@@ -1,6 +1,5 @@
 package com.zl.mjga.dto.urp;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 import java.util.LinkedList;

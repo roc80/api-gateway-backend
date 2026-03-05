@@ -95,14 +95,10 @@ public class Jwt {
 
         // 手动构建 Set-Cookie 响应头以支持 SameSite=None
         // SameSite=None 必须配合 Secure 使用
-        String setCookieHeader = String.format(
-                "%s=%s; Path=%s; Max-Age=%d; %s; %s; SameSite=None",
-                cookieName,
-                token,
-                cookiePath,
-                expirationMin * 60,
-                "Secure",
-                "HttpOnly");
+        String setCookieHeader =
+                String.format(
+                        "%s=%s; Path=%s; Max-Age=%d; %s; %s; SameSite=None",
+                        cookieName, token, cookiePath, expirationMin * 60, "Secure", "HttpOnly");
         response.addHeader("Set-Cookie", setCookieHeader);
     }
 
@@ -112,12 +108,10 @@ public class Jwt {
         String cookiePath = StringUtils.isNotEmpty(contextPath) ? contextPath : "/";
 
         // 手动构建 Set-Cookie 响应头以支持 SameSite=None
-        String setCookieHeader = String.format(
-                "%s=; Path=%s; Max-Age=0; %s; %s; SameSite=None",
-                cookieName,
-                cookiePath,
-                "Secure",
-                "HttpOnly");
+        String setCookieHeader =
+                String.format(
+                        "%s=; Path=%s; Max-Age=0; %s; %s; SameSite=None",
+                        cookieName, cookiePath, "Secure", "HttpOnly");
         response.addHeader("Set-Cookie", setCookieHeader);
     }
 }

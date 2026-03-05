@@ -21,8 +21,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    @Nullable
-    public ResponseEntity<Object> handleMethodArgumentNotValid(
+    @Nullable public ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
             HttpStatusCode status,
@@ -48,22 +47,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             @NonNull HttpStatusCode status,
             @NonNull WebRequest request) {
         log.error("HttpMessageNotReadableException Handled  ===> ", ex);
-        ErrorResponseException exception = new ErrorResponseException(
-                status,
-                ProblemDetail.forStatusAndDetail(status, ex.getMessage()),
-                ex.getCause());
+        ErrorResponseException exception =
+                new ErrorResponseException(
+                        status,
+                        ProblemDetail.forStatusAndDetail(status, ex.getMessage()),
+                        ex.getCause());
         return handleExceptionInternal(
                 exception,
                 exception.getBody(),
                 exception.getHeaders(),
                 exception.getStatusCode(),
-                request
-        );
+                request);
     }
 
     // ======================下面需要手动指定异常处理逻辑，上面扩展父类逻辑===================================================
 
-    @ExceptionHandler(value = {IllegalArgumentException.class, MethodArgumentTypeMismatchException.class})
+    @ExceptionHandler(
+            value = {IllegalArgumentException.class, MethodArgumentTypeMismatchException.class})
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Bad Request Handled  ===> ", ex);
         ErrorResponseException errorResponseException =

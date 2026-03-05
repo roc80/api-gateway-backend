@@ -1,5 +1,6 @@
 package com.zl.mjga.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.roc.apiclientsdk.client.ApiClient;
 import com.zl.mjga.dto.PageRequestDto;
 import com.zl.mjga.dto.PageResponseDto;
@@ -7,18 +8,14 @@ import com.zl.mjga.dto.api.*;
 import com.zl.mjga.repository.UserRepository;
 import com.zl.mjga.service.InterfaceCallLogService;
 import com.zl.mjga.service.InterfaceService;
-
-import cn.hutool.json.JSONUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-
 import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.jooq.generated.api_gateway.tables.pojos.User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -106,21 +103,34 @@ public class InterfaceController {
 
     @Operation(summary = "模拟API", description = "传输用户，返回该用户的名称")
     @PostMapping("/invoke/mock/name")
-    public Object invoke(@Parameter(description = "模拟用户") @RequestBody com.roc.apiclientsdk.module.User paramUser, Principal principal) {
+    public Object invoke(
+            @Parameter(description = "模拟用户") @RequestBody
+                    com.roc.apiclientsdk.module.User paramUser,
+            Principal principal) {
         String name = principal.getName();
         User loginUser = userRepository.fetchOneByUsername(name);
-        String response = new ApiClient(loginUser.getAccessKey(), loginUser.getSecretKey()).getName(paramUser);
+        String response =
+                new ApiClient(loginUser.getAccessKey(), loginUser.getSecretKey())
+                        .getName(paramUser);
 
         // todo@lp 模拟数据跑通流程，这里接口调用返回数据结构需要重新定义
         // todo@lp 接口路径不能写死，需要传过来 apiId versionId
-        InterfaceCallLogCreateDto interfaceCallLogCreateDto = new InterfaceCallLogCreateDto(
-                1L, 1L, loginUser.getUsername(), JSONUtil.toJsonStr(paramUser), response, 200, true, 20);
-        InterfaceCallLogDto interfaceCallLog = interfaceCallLogService.createInterfaceCallLog(interfaceCallLogCreateDto);
+        InterfaceCallLogCreateDto interfaceCallLogCreateDto =
+                new InterfaceCallLogCreateDto(
+                        1L,
+                        1L,
+                        loginUser.getUsername(),
+                        JSONUtil.toJsonStr(paramUser),
+                        response,
+                        200,
+                        true,
+                        20);
+        InterfaceCallLogDto interfaceCallLog =
+                interfaceCallLogService.createInterfaceCallLog(interfaceCallLogCreateDto);
         if (interfaceCallLog == null) {
             log.error("create interface call log failed: {}", interfaceCallLogCreateDto);
         }
 
         return response;
     }
-
 }

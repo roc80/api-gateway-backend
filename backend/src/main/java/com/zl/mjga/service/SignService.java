@@ -5,7 +5,6 @@ import com.zl.mjga.dto.sign.SignUpDto;
 import com.zl.mjga.exception.BusinessException;
 import com.zl.mjga.model.urp.ERole;
 import com.zl.mjga.repository.UserRepository;
-
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.List;

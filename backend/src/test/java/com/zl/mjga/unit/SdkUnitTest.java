@@ -1,10 +1,9 @@
 package com.zl.mjga.unit;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import com.roc.apiclientsdk.client.ApiClient;
 import com.roc.apiclientsdk.module.User;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author lipeng
@@ -19,5 +18,4 @@ public class SdkUnitTest {
         ApiClient apiClient = new ApiClient("123", "456");
         Assertions.assertEquals("username", apiClient.getName(user));
     }
-
 }
