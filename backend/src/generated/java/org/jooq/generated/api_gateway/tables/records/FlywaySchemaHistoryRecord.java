@@ -4,7 +4,7 @@
 package org.jooq.generated.api_gateway.tables.records;
 
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 import org.jooq.Record1;
 import org.jooq.generated.api_gateway.tables.FlywaySchemaHistory;
@@ -127,7 +127,7 @@ public class FlywaySchemaHistoryRecord extends UpdatableRecordImpl<FlywaySchemaH
     /**
      * Setter for <code>api_gateway.flyway_schema_history.installed_on</code>.
      */
-    public FlywaySchemaHistoryRecord setInstalledOn(OffsetDateTime value) {
+    public FlywaySchemaHistoryRecord setInstalledOn(LocalDateTime value) {
         set(7, value);
         return this;
     }
@@ -135,8 +135,8 @@ public class FlywaySchemaHistoryRecord extends UpdatableRecordImpl<FlywaySchemaH
     /**
      * Getter for <code>api_gateway.flyway_schema_history.installed_on</code>.
      */
-    public OffsetDateTime getInstalledOn() {
-        return (OffsetDateTime) get(7);
+    public LocalDateTime getInstalledOn() {
+        return (LocalDateTime) get(7);
     }
 
     /**
@@ -192,7 +192,7 @@ public class FlywaySchemaHistoryRecord extends UpdatableRecordImpl<FlywaySchemaH
     /**
      * Create a detached, initialised FlywaySchemaHistoryRecord
      */
-    public FlywaySchemaHistoryRecord(Integer installedRank, String version, String description, String type, String script, Integer checksum, String installedBy, OffsetDateTime installedOn, Integer executionTime, Boolean success) {
+    public FlywaySchemaHistoryRecord(Integer installedRank, String version, String description, String type, String script, Integer checksum, String installedBy, LocalDateTime installedOn, Integer executionTime, Boolean success) {
         super(FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY);
 
         setInstalledRank(installedRank);

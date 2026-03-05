@@ -4,7 +4,7 @@
 package org.jooq.generated.api_gateway.tables.daos;
 
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -166,14 +166,14 @@ public class FlywaySchemaHistoryDao extends AbstractSpringDAOImpl<FlywaySchemaHi
      * Fetch records that have <code>installed_on BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
-    public List<org.jooq.generated.api_gateway.tables.pojos.FlywaySchemaHistory> fetchRangeOfInstalledOn(OffsetDateTime lowerInclusive, OffsetDateTime upperInclusive) {
+    public List<org.jooq.generated.api_gateway.tables.pojos.FlywaySchemaHistory> fetchRangeOfInstalledOn(LocalDateTime lowerInclusive, LocalDateTime upperInclusive) {
         return fetchRange(FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.INSTALLED_ON, lowerInclusive, upperInclusive);
     }
 
     /**
      * Fetch records that have <code>installed_on IN (values)</code>
      */
-    public List<org.jooq.generated.api_gateway.tables.pojos.FlywaySchemaHistory> fetchByInstalledOn(OffsetDateTime... values) {
+    public List<org.jooq.generated.api_gateway.tables.pojos.FlywaySchemaHistory> fetchByInstalledOn(LocalDateTime... values) {
         return fetch(FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.INSTALLED_ON, values);
     }
 

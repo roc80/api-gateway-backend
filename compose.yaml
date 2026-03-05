@@ -15,33 +15,43 @@ services:
     networks:
       - backend
 
-  web:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME}-web
-    hostname: web
+    container_name: ${COMPOSE_PROJECT_NAME}-backend
+    hostname: backend
     environment:
       LOG_PATH: ${LOG_PATH}
-
-      DATABASE_HOST: ${DATABASE_HOST}
-      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
       DATABASE_DB: ${DATABASE_DB}
       DATABASE_DEFAULT_SCHEMA: ${DATABASE_DEFAULT_SCHEMA}
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-
-      ALLOWED_ORIGIN_PATTERNS: ${ALLOWED_ORIGIN_PATTERNS}
-      ALLOWED_METHODS: ${ALLOWED_METHODS}
-      ALLOWED_HEADERS: ${ALLOWED_HEADERS}
-      EXPOSED_HEADERS: ${EXPOSED_HEADERS}
-
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
       - postgres
     ports:
-      - "${WEB_EXPOSE_PORT}:8080"
+      - "${BACKEND_EXPOSE_PORT:-8080}:8080"
     volumes:
       - "/data/api-gateway/log:${LOG_PATH}"
+    restart: always
+    networks:
+      - backend
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: ${COMPOSE_PROJECT_NAME}-gateway
+    hostname: gateway
+    environment:
+      BACKEND_SERVICE_URL: http://backend:8080
+    depends_on:
+      - backend
+    ports:
+      - "${GATEWAY_EXPOSE_PORT:-9090}:9090"
     restart: always
     networks:
       - backend

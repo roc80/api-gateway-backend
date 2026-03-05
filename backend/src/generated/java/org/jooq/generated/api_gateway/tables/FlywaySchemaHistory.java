@@ -4,11 +4,14 @@
 package org.jooq.generated.api_gateway.tables;
 
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.jooq.Condition;
 import org.jooq.Field;
+import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.PlainSQL;
 import org.jooq.QueryPart;
@@ -21,6 +24,7 @@ import org.jooq.TableField;
 import org.jooq.TableOptions;
 import org.jooq.UniqueKey;
 import org.jooq.generated.api_gateway.ApiGateway;
+import org.jooq.generated.api_gateway.Indexes;
 import org.jooq.generated.api_gateway.Keys;
 import org.jooq.generated.api_gateway.tables.records.FlywaySchemaHistoryRecord;
 import org.jooq.impl.DSL;
@@ -87,7 +91,7 @@ public class FlywaySchemaHistory extends TableImpl<FlywaySchemaHistoryRecord> {
     /**
      * The column <code>api_gateway.flyway_schema_history.installed_on</code>.
      */
-    public final TableField<FlywaySchemaHistoryRecord, OffsetDateTime> INSTALLED_ON = createField(DSL.name("installed_on"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "");
+    public final TableField<FlywaySchemaHistoryRecord, LocalDateTime> INSTALLED_ON = createField(DSL.name("installed_on"), SQLDataType.LOCALDATETIME(6).nullable(false).defaultValue(DSL.field(DSL.raw("now()"), SQLDataType.LOCALDATETIME)), this, "");
 
     /**
      * The column <code>api_gateway.flyway_schema_history.execution_time</code>.
@@ -133,6 +137,11 @@ public class FlywaySchemaHistory extends TableImpl<FlywaySchemaHistoryRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : ApiGateway.API_GATEWAY;
+    }
+
+    @Override
+    public List<Index> getIndexes() {
+        return Arrays.asList(Indexes.FLYWAY_SCHEMA_HISTORY_S_IDX);
     }
 
     @Override
