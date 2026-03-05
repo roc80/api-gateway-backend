@@ -30,12 +30,6 @@ docker-compose -f compose-dev.yaml up -d
 .\gradlew.bat spotlessApply
 ```
 
-## 开发计划
-
-- [ ] ~~接口信息管理 12.21-12.22~~
-- [x] 接口数据表设计 12.21-12.25
-- [ ] 接口表CRUD 12.26-12.30
-
 
 ---
 
