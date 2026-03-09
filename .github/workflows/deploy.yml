@@ -1,10 +1,10 @@
 name: Deploy to Production
 
 # todo@lp 服务器资源限制，开发完成后再统一部署
-#on:
-#  push:
-#    branches:
-#      - master
+on:
+  push:
+    branches:
+      - master_deploy
 
 jobs:
   deploy:
