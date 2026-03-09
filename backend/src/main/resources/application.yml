@@ -51,5 +51,5 @@ knife4j:
 
 jwt:
   secret: ${JWT_SECRET:secret}
-  expiration-min: ${JWT_EXPIRATION_MIN:100}
+  expiration-second: ${JWT_EXPIRATION_SECOND:6000}
   cookie-name: ${JWT_COOKIE_NAME:jwt}

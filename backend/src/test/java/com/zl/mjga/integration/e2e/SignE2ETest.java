@@ -26,8 +26,8 @@ public class SignE2ETest {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration-min}")
-    private int expirationMin;
+    @Value("${jwt.expiration-second}")
+    private int expirationSecond;
 
     @Autowired private WebTestClient webTestClient;
 
@@ -85,7 +85,7 @@ public class SignE2ETest {
                 .expectCookie()
                 .exists(jwtCookieName)
                 .expectCookie()
-                .maxAge(jwtCookieName, Duration.ofSeconds(expirationMin * 60L))
+                .maxAge(jwtCookieName, Duration.ofSeconds(expirationSecond))
                 .expectStatus()
                 .isOk();
     }

@@ -24,7 +24,7 @@ public class Jwt {
 
     private final String secret;
 
-    private final int expirationMin;
+    private final int expirationSecond;
 
     private final String cookieName;
 
@@ -32,11 +32,11 @@ public class Jwt {
 
     public Jwt(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration-min}") int expirationMin,
+            @Value("${jwt.expiration-second}") int expirationSecond,
             @Value("${jwt.cookie-name}") String cookieName) {
         this.verifier = JWT.require(Algorithm.HMAC256(secret)).build();
         this.secret = secret;
-        this.expirationMin = expirationMin;
+        this.expirationSecond = expirationSecond;
         this.cookieName = cookieName;
     }
 
@@ -69,7 +69,7 @@ public class Jwt {
                 .withExpiresAt(
                         Date.from(
                                 LocalDateTime.now()
-                                        .plusMinutes(expirationMin)
+                                        .plusSeconds(expirationSecond)
                                         .atZone(ZoneId.systemDefault())
                                         .toInstant()))
                 .sign(Algorithm.HMAC256(secret));
@@ -80,7 +80,7 @@ public class Jwt {
         String cookiePath = StringUtils.isNotEmpty(contextPath) ? contextPath : "/";
         Cookie cookie = new Cookie(cookieName, create(userIdentify));
         cookie.setPath(cookiePath);
-        cookie.setMaxAge(expirationMin * 60);
+        cookie.setMaxAge(expirationSecond);
         cookie.setSecure(request.isSecure());
         cookie.setHttpOnly(true);
         return cookie;
@@ -98,7 +98,7 @@ public class Jwt {
         String setCookieHeader =
                 String.format(
                         "%s=%s; Path=%s; Max-Age=%d; %s; %s; SameSite=None",
-                        cookieName, token, cookiePath, expirationMin * 60, "Secure", "HttpOnly");
+                        cookieName, token, cookiePath, expirationSecond, "Secure", "HttpOnly");
         response.addHeader("Set-Cookie", setCookieHeader);
     }
 
