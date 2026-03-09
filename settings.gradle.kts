@@ -1,3 +1,3 @@
 rootProject.name = "api-gateway"
 
-include("backend", "gateway")
+include("backend", "gateway", "mockapi")

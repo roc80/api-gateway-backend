@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: mock-api
+
+server:
+  port: 8010
+  servlet:
+    context-path: /api
