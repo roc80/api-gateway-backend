@@ -61,10 +61,6 @@ public class CustomGlobalFilter implements GlobalFilter {
             ServerHttpRequest request) {
         RequestHeaders headers = extractHeaders(request);
         boolean hasBody = isRequestBodyMethod(request.getMethod().name());
-
-        log.debug(
-                "[{}] Processing {} request (hasBody={})", requestId, request.getMethod(), hasBody);
-
         if (hasBody) {
             return processWithBody(exchange, chain, requestId, headers);
         } else {
@@ -170,7 +166,7 @@ public class CustomGlobalFilter implements GlobalFilter {
                 headers.getFirst("sign"),
                 headers.getFirst("access-key"),
                 headers.getFirst("Content-Length"),
-                "456");
+                "456"); // todo@lp 根据ak查找sk
     }
 
     private ApiResponse authenticateInternal(

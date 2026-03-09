@@ -12,8 +12,20 @@ services:
     ports:
       - "${DATABASE_EXPOSE_PORT}:5432"
     volumes:
-      # 左边是宿主机路径，你要改成你的真实路径
       - "D:/docker/store/api-gateway/db:${DATABASE_STORE}"
+    restart: always
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME}-redis-dev
+    hostname: redis
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_EXPOSE_PORT}:6379"
+    volumes:
+      - "D:/docker/store/api-gateway/redis:${REDIS_STORE}"
     restart: always
     networks:
       - backend
