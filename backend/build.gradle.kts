@@ -68,6 +68,10 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("com.roc:api-client-sdk:0.0.1")
+    implementation(platform("org.apache.dubbo:dubbo-bom:3.3.0"))
+    implementation("org.apache.dubbo:dubbo-spring-boot-starter")
+    implementation("org.apache.dubbo:dubbo-nacos-spring-boot-starter")
+    implementation(project(":api"))
 
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter:$testcontainersVersion")
