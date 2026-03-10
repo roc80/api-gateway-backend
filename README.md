@@ -9,27 +9,48 @@
 ---
 
 ## 注意事项
+
 - IDEA Project SDK选择 build.gradle.kts中指定的JDK版本
 - IDEA Settings - Build, Execution, Deployment - Build Tools - Gradle - Build and run using IntelliJ IDEA
 - 编译项目前，确保有docker环境，启动依赖的服务
+
 ```shell
 
 # 启动依赖服务
 docker-compose -f compose-dev.yaml up -d
 ```
+
 - 首次启动或改动sql后，手动执行
+
 ```shell
 
 # 生成jooq模板代码
  .\gradlew.bat jooqCodegen
 ```
+
 - build时如果spotlessCheck失败，手动执行
+
 ```shell
 
 # 应用spotless插件
 .\gradlew.bat spotlessApply
 ```
 
+```shell
+
+docker pull nacos/nacos-server
+
+docker run -d `
+   --name nacos `
+   -e MODE=standalone `
+   -e NACOS_AUTH_ENABLE=false `
+   -e NACOS_AUTH_TOKEN="SW52YWxpZFRva2VuQmFzZTY0U3RyaW5nV2l0aDMyQnl0ZXNMZW5ndGg=" `
+   -e NACOS_AUTH_IDENTITY_KEY="serverIdentity" `
+   -e NACOS_AUTH_IDENTITY_VALUE="security" `
+   -p 8848:8848 `
+   -p 8080:8080 `
+   nacos/nacos-server:latest
+```
 
 ---
 
