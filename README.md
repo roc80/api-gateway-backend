@@ -67,6 +67,14 @@ docker-compose -f compose-dev.yaml up -d
 .\gradlew.bat spotlessApply
 ```
 
+## TODO
+- [ ] 代码遗留todo处理
+- [ ] 将RPC接口定义抽离到独立的Gradle module
+- [ ] 检查接口权限，为一些接口设置管理员权限调用。提供用户申请成为管理员的机制。
+- [ ] 提供用户上传API的功能：用户的接口检查、审核等等。需要符合特定规则。
+- [ ] 完善API Client SDK，将其命名为spring-boot-starter，优化结构，使其通用。
+- [ ] 提供统计分析功能，统计接口调用情况、用户调用次数情况，方便前端可视化展示图表
+
 ---
 
 ## Star History
