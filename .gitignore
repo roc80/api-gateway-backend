@@ -227,3 +227,4 @@ db.d/store/*
 .git
 
 .claude/
+MEMORY.md
