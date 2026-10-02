@@ -1,7 +1,7 @@
 package com.roc.mockapi.controller;
 
-import com.roc.apiclientsdk.module.ApiResponse;
-import com.roc.apiclientsdk.module.User;
+import com.roc.contract.ApiResponse;
+import com.roc.contract.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
