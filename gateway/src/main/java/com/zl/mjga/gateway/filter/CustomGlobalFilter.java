@@ -1,9 +1,11 @@
 package com.zl.mjga.gateway.filter;
 
+import com.roc.api.dto.UserAuthInfo;
 import com.roc.contract.ApiResponse;
 import com.roc.contract.SignUtil;
 import com.zl.mjga.gateway.auth.constant.ApiSignConstant;
 import com.zl.mjga.gateway.auth.service.NonceService;
+import com.zl.mjga.gateway.auth.service.UserAuthProvider;
 import com.zl.mjga.gateway.auth.util.IPUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -40,6 +42,8 @@ public class CustomGlobalFilter implements GlobalFilter {
 
     private final NonceService nonceService;
 
+    private final UserAuthProvider userAuthProvider;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String requestId = java.util.UUID.randomUUID().toString().substring(0, 8);
@@ -53,9 +57,6 @@ public class CustomGlobalFilter implements GlobalFilter {
             log.warn("[{}] IP NOT in whitelist, returning FORBIDDEN", requestId);
             return requestError(exchange, requestId, HttpStatus.FORBIDDEN);
         }
-
-        // todo@lp 用户是否可以调用api
-        // todo@lp 接口是否存在
 
         return processRequest(exchange, chain, requestId, originalRequest);
     }
@@ -122,6 +123,43 @@ public class CustomGlobalFilter implements GlobalFilter {
             log.warn("[{}] Request expired: {}ms > {}ms", requestId, timeDiff, expiredMs);
             return requestError(exchange, requestId, HttpStatus.REQUEST_TIMEOUT);
         }
+        // 按 ak 查询调用方认证信息（sk + 启用状态），替代原先硬编码的 secretKey
+        return userAuthProvider
+                .getAuthByAccessKey(headers.accessKey)
+                .switchIfEmpty(Mono.error(new UnknownAccessKeyException(headers.accessKey)))
+                .flatMap(
+                        auth -> {
+                            if (!Boolean.TRUE.equals(auth.getEnabled())) {
+                                log.warn(
+                                        "[{}] User {} is disabled, rejecting",
+                                        requestId,
+                                        auth.getUsername());
+                                return requestError(exchange, requestId, HttpStatus.FORBIDDEN);
+                            }
+                            return verifyAndForward(
+                                    headers, auth, bodyJson, exchange, chain, requestId, bodyBytes);
+                        })
+                .onErrorResume(
+                        error -> {
+                            if (error instanceof UnknownAccessKeyException) {
+                                log.warn(
+                                        "[{}] Unknown accessKey: {}", requestId, headers.accessKey);
+                                return requestError(exchange, requestId, HttpStatus.FORBIDDEN);
+                            }
+                            log.error("[{}] Failed to authenticate caller", requestId, error);
+                            return requestError(
+                                    exchange, requestId, HttpStatus.SERVICE_UNAVAILABLE);
+                        });
+    }
+
+    private Mono<Void> verifyAndForward(
+            RequestHeaders headers,
+            UserAuthInfo auth,
+            String bodyJson,
+            ServerWebExchange exchange,
+            GatewayFilterChain chain,
+            String requestId,
+            byte[] bodyBytes) {
         return nonceService
                 .verifyAndRecordNonce(headers.nonce)
                 .flatMap(
@@ -136,7 +174,7 @@ public class CustomGlobalFilter implements GlobalFilter {
                             ApiResponse authResult =
                                     verifySign(
                                             headers.accessKey,
-                                            headers.secretKey,
+                                            auth.getSecretKey(),
                                             headers.sign,
                                             headers.nonce,
                                             headers.timestamp,
@@ -192,8 +230,6 @@ public class CustomGlobalFilter implements GlobalFilter {
                                                                                     requestId,
                                                                                     getStatusCode(),
                                                                                     responseBody);
-                                                                            // todo@lp 接口调用次数统计
-
                                                                             return bufferFactory
                                                                                     .wrap(content);
                                                                         }));
@@ -234,8 +270,7 @@ public class CustomGlobalFilter implements GlobalFilter {
                 headers.getFirst("timestamp"),
                 headers.getFirst("sign"),
                 headers.getFirst("access-key"),
-                headers.getFirst("Content-Length"),
-                "456"); // todo@lp 根据ak查找sk
+                headers.getFirst("Content-Length"));
     }
 
     /**
@@ -309,10 +344,12 @@ public class CustomGlobalFilter implements GlobalFilter {
     }
 
     private record RequestHeaders(
-            String nonce,
-            String timestamp,
-            String sign,
-            String accessKey,
-            String contentLength,
-            String secretKey) {}
+            String nonce, String timestamp, String sign, String accessKey, String contentLength) {}
+
+    /** accessKey 在用户表中不存在，用于在响应式链路中区分"未知调用方"与系统错误 */
+    private static final class UnknownAccessKeyException extends RuntimeException {
+        private UnknownAccessKeyException(String accessKey) {
+            super("unknown accessKey: " + accessKey);
+        }
+    }
 }
