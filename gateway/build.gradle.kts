@@ -22,7 +22,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.slf4j:slf4j-api")
     implementation("com.auth0:java-jwt:4.4.0")
-    implementation("com.roc:api-client-sdk:0.0.1")
+    implementation(project(":api-contract"))
     implementation(platform("org.apache.dubbo:dubbo-bom:3.3.0"))
     implementation("org.apache.dubbo:dubbo-spring-boot-starter")
     implementation("org.apache.dubbo:dubbo-nacos-spring-boot-starter")

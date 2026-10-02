@@ -1,7 +1,8 @@
 package com.zl.mjga.controller;
 
-import cn.hutool.json.JSONUtil;
-import com.roc.apiclientsdk.client.ApiClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zl.mjga.client.GatewayApiClient;
 import com.zl.mjga.dto.PageRequestDto;
 import com.zl.mjga.dto.PageResponseDto;
 import com.zl.mjga.dto.api.*;
@@ -36,6 +37,8 @@ public class InterfaceController {
     private final InterfaceService interfaceService;
     private final UserRepository userRepository;
     private final InterfaceCallLogService interfaceCallLogService;
+    private final GatewayApiClient gatewayApiClient;
+    private final ObjectMapper objectMapper;
 
     /** 创建接口 */
     @Operation(summary = "创建接口", description = "创建新的接口信息")
@@ -104,27 +107,20 @@ public class InterfaceController {
     @Operation(summary = "模拟API", description = "传输用户，返回该用户的名称")
     @PostMapping("/invoke/mock/name")
     public Object invoke(
-            @Parameter(description = "模拟用户") @RequestBody
-                    com.roc.apiclientsdk.module.User paramUser,
+            @Parameter(description = "模拟用户") @RequestBody com.roc.contract.User paramUser,
             Principal principal) {
         String name = principal.getName();
         User loginUser = userRepository.fetchOneByUsername(name);
+        String bodyJson = toJson(paramUser);
         String response =
-                new ApiClient(loginUser.getAccessKey(), loginUser.getSecretKey())
-                        .getName(paramUser);
+                gatewayApiClient.postForBody(
+                        "/api/name", bodyJson, loginUser.getAccessKey(), loginUser.getSecretKey());
 
         // todo@lp 模拟数据跑通流程，这里接口调用返回数据结构需要重新定义
         // todo@lp 接口路径不能写死，需要传过来 apiId versionId
         InterfaceCallLogCreateDto interfaceCallLogCreateDto =
                 new InterfaceCallLogCreateDto(
-                        1L,
-                        1L,
-                        loginUser.getUsername(),
-                        JSONUtil.toJsonStr(paramUser),
-                        response,
-                        200,
-                        true,
-                        20);
+                        1L, 1L, loginUser.getUsername(), bodyJson, response, 200, true, 20);
         InterfaceCallLogDto interfaceCallLog =
                 interfaceCallLogService.createInterfaceCallLog(interfaceCallLogCreateDto);
         if (interfaceCallLog == null) {
@@ -132,5 +128,13 @@ public class InterfaceController {
         }
 
         return response;
+    }
+
+    private String toJson(Object value) {
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("serialize request body failed", e);
+        }
     }
 }

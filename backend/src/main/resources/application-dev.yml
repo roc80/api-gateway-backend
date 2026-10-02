@@ -16,8 +16,7 @@ spring:
 
 api:
   client:
-    access-key: placeholder
-    secret-key: placeholder
+    gateway-base-url: http://localhost:9090
 
 dubbo:
   application:

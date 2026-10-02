@@ -3,8 +3,10 @@ package com.zl.mjga;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication(scanBasePackages = {"com.zl.mjga", "org.jooq.generated"})
+@ConfigurationPropertiesScan
 @EnableDubbo(scanBasePackages = {"com.zl.mjga.service"})
 public class ApiApplication {
 

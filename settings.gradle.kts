@@ -9,5 +9,7 @@ include(
     // 模拟的第三方接口
     "mockapi",
     // rpc接口定义
-    "api"
+    "api",
+    // api签名协议与通用契约（api-client-sdk 对应的服务端权威实现）
+    "api-contract"
 )

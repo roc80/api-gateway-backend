@@ -12,7 +12,8 @@ allprojects {
     version = "1.0.0"
 
     repositories {
-        mavenLocal()
+        // 不使用 mavenLocal：本仓库所有依赖均来自 Maven Central 或 project() 源码依赖，
+        // 避免机器本地构件导致构建不可重现
         mavenCentral()
     }
 }
