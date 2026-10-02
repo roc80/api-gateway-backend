@@ -12,8 +12,7 @@
 
 ### 模块说明
 
-- `api-contract`：API 签名协议与通用契约（网关验签、接口契约的权威定义），签名算法与第三方 [api-client-sdk](https://github.com/roc80/api-client-sdk) 逐位一致，兼容性由 `SignUtilTest` 中的固定向量保证
-- 本仓库不依赖 `com.roc:api-client-sdk` 构件，仓库内模块通过 `project(":api-contract")` 共享协议；SDK 面向第三方调用方独立演进
+- `api-contract`：API 签名协议与通用契约（网关验签、接口契约的权威定义）
 
 ### IDEA设置
 
@@ -77,7 +76,6 @@ docker-compose -f compose-dev.yaml up -d
 - [ ] 将RPC接口定义抽离到独立的Gradle module
 - [ ] 检查接口权限，为一些接口设置管理员权限调用。提供用户申请成为管理员的机制。
 - [ ] 提供用户上传API的功能：用户的接口检查、审核等等。需要符合特定规则。
-- [ ] 完善API Client SDK，将其命名为spring-boot-starter，优化结构，使其通用。
 - [ ] 提供统计分析功能，统计接口调用情况、用户调用次数情况，方便前端可视化展示图表
 
 ---
