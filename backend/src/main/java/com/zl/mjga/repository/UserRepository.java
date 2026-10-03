@@ -55,6 +55,13 @@ public class UserRepository extends UserDao {
         return selectUserAgg().where(USER.ID.eq(userId)).fetchOneInto(UserRolePermissionDto.class);
     }
 
+    /** 按接入密钥查询用户（网关 ak→sk 查询使用） */
+    public org.jooq.generated.api_gateway.tables.pojos.User fetchOneByAccessKey(String accessKey) {
+        return ctx().selectFrom(USER)
+                .where(USER.ACCESS_KEY.eq(accessKey))
+                .fetchOneInto(org.jooq.generated.api_gateway.tables.pojos.User.class);
+    }
+
     public SelectJoinStep<Record> selectUserAgg() {
         return ctx().select(
                         USER.asterisk(),
