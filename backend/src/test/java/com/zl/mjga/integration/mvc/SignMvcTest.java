@@ -9,6 +9,7 @@ import com.zl.mjga.config.security.HttpFireWallConfig;
 import com.zl.mjga.config.security.Jwt;
 import com.zl.mjga.controller.SignController;
 import com.zl.mjga.dto.sign.SignInDto;
+import com.zl.mjga.repository.UserRepository;
 import com.zl.mjga.service.SignService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ class SignMvcTest {
     @MockBean private SignService signService;
 
     @MockBean private Jwt jwt;
+
+    // UserAuthServiceImpl(@DubboService) 会被 Dubbo 注册进切片，需要 mock 其构造依赖
+    @MockBean private UserRepository userRepository;
 
     @Autowired private MockMvc mockMvc;
 

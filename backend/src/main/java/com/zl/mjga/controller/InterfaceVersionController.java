@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,6 +55,7 @@ public class InterfaceVersionController {
 
     /** 更新接口版本 */
     @Operation(summary = "更新接口版本")
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_INTERFACE)")
     @PostMapping("/{id}")
     public InterfaceVersionDto update(
             @Parameter(description = "接口版本ID", required = true)
@@ -65,6 +67,7 @@ public class InterfaceVersionController {
 
     /** 删除接口版本 */
     @Operation(summary = "删除接口版本")
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_INTERFACE)")
     @DeleteMapping("/{id}")
     public void delete(
             @Parameter(description = "接口版本ID", required = true)
@@ -75,6 +78,7 @@ public class InterfaceVersionController {
 
     /** 批量删除接口版本 */
     @Operation(summary = "批量删除接口版本")
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_INTERFACE)")
     @DeleteMapping("/batch")
     public void batchDelete(@Valid @RequestBody InterfaceVersionBatchDeleteDto batchDeleteDto) {
         interfaceVersionService.batchDeleteInterfaceVersion(batchDeleteDto);
@@ -82,6 +86,7 @@ public class InterfaceVersionController {
 
     /** 新增接口版本 */
     @Operation(summary = "新增接口版本")
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_INTERFACE)")
     @PostMapping
     public InterfaceVersionDto create(
             @Valid @RequestBody InterfaceVersionCreateDto interfaceVersionCreateDto) {
