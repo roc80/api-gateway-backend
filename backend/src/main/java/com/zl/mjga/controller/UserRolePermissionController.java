@@ -114,4 +114,35 @@ public class UserRolePermissionController {
     void bindPermissionToRole(@PathVariable Long roleId, @RequestBody List<Long> permissionIdList) {
         userRolePermissionService.bindPermissionToRole(roleId, permissionIdList);
     }
+
+    /** 申请成为管理员（绑定 PENDING_ADMIN 标记角色，等待审批） */
+    @PostMapping("/me/apply-admin")
+    void applyForAdmin(Principal principal) {
+        String name = principal.getName();
+        User user = userRepository.fetchOneByUsername(name);
+        userRolePermissionService.applyForAdmin(user.getId());
+    }
+
+    /** 待审批管理员申请列表 */
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).READ_USER_ROLE_PERMISSION)")
+    @GetMapping("/pending-admins")
+    @ResponseStatus(HttpStatus.OK)
+    PageResponseDto<List<UserRolePermissionDto>> queryPendingAdmins(
+            @ModelAttribute PageRequestDto pageRequestDto) {
+        return userRolePermissionService.pageQueryPendingAdminApplications(pageRequestDto);
+    }
+
+    /** 审批通过管理员申请 */
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_USER_ROLE_PERMISSION)")
+    @PostMapping("/pending-admins/approve")
+    void approveAdminApplication(@RequestParam Long userId) {
+        userRolePermissionService.approveAdminApplication(userId);
+    }
+
+    /** 驳回管理员申请 */
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_USER_ROLE_PERMISSION)")
+    @PostMapping("/pending-admins/reject")
+    void rejectAdminApplication(@RequestParam Long userId) {
+        userRolePermissionService.rejectAdminApplication(userId);
+    }
 }

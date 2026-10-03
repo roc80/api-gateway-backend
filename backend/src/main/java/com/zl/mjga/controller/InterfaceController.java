@@ -18,6 +18,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.api_gateway.tables.pojos.User;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,7 @@ public class InterfaceController {
 
     /** 创建接口 */
     @Operation(summary = "创建接口", description = "创建新的接口信息")
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_INTERFACE)")
     @PostMapping
     public InterfaceDto create(@Valid @RequestBody InterfaceCreateDto createDto) {
         return interfaceService.createInterface(createDto);
@@ -49,6 +51,7 @@ public class InterfaceController {
 
     /** 更新接口 */
     @Operation(summary = "更新接口", description = "根据 ID 更新接口信息")
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_INTERFACE)")
     @PutMapping("/{id}")
     public InterfaceDto update(
             @Parameter(description = "接口ID", required = true)
@@ -60,6 +63,7 @@ public class InterfaceController {
 
     /** 部分更新接口 (仅更新启用状态) */
     @Operation(summary = "更新接口启用状态", description = "启用或禁用接口")
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_INTERFACE)")
     @PatchMapping("/{id}/enabled")
     public InterfaceDto patchEnabled(
             @Parameter(description = "接口ID", required = true)
@@ -89,6 +93,7 @@ public class InterfaceController {
 
     /** 删除接口 */
     @Operation(summary = "删除接口", description = "根据 ID 删除接口")
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_INTERFACE)")
     @DeleteMapping("/{id}")
     public void delete(
             @Parameter(description = "接口ID", required = true)
@@ -99,6 +104,7 @@ public class InterfaceController {
 
     /** 批量删除接口 */
     @Operation(summary = "批量删除接口", description = "根据 ID 列表批量删除接口")
+    @PreAuthorize("hasAuthority(T(com.zl.mjga.model.urp.EPermission).WRITE_INTERFACE)")
     @DeleteMapping("/batch")
     public void batchDelete(@Valid @RequestBody InterfaceBatchDeleteDto batchDeleteDto) {
         interfaceService.batchDeleteInterfaces(batchDeleteDto.ids());

@@ -1,6 +1,8 @@
 package com.zl.mjga.repository;
 
+import static org.jooq.generated.api_gateway.tables.Role.ROLE;
 import static org.jooq.generated.api_gateway.tables.User.USER;
+import static org.jooq.generated.api_gateway.tables.UserRoleMap.USER_ROLE_MAP;
 import static org.jooq.impl.DSL.*;
 
 import com.zl.mjga.dto.PageRequestDto;
@@ -60,6 +62,23 @@ public class UserRepository extends UserDao {
         return ctx().selectFrom(USER)
                 .where(USER.ACCESS_KEY.eq(accessKey))
                 .fetchOneInto(org.jooq.generated.api_gateway.tables.pojos.User.class);
+    }
+
+    /** 按角色 code 分页查询用户聚合（含角色与权限），用于管理员申请待审批列表 */
+    public Result<Record> pageFetchUserAggByRoleCode(
+            PageRequestDto pageRequestDto, String roleCode) {
+        return selectUserAgg()
+                .where(
+                        USER.ID.in(
+                                select(USER_ROLE_MAP.USER_ID)
+                                        .from(USER_ROLE_MAP)
+                                        .join(ROLE)
+                                        .on(ROLE.ID.eq(USER_ROLE_MAP.ROLE_ID))
+                                        .where(ROLE.CODE.eq(roleCode))))
+                .orderBy(pageRequestDto.getSortFields())
+                .limit(pageRequestDto.getSize())
+                .offset(pageRequestDto.getOffset())
+                .fetch();
     }
 
     public SelectJoinStep<Record> selectUserAgg() {
