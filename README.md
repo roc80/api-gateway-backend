@@ -75,7 +75,7 @@ docker-compose -f compose-dev.yaml up -d
 - [x] 代码遗留todo处理（网关验签所需的 sk 由硬编码改为经 Dubbo RPC 按 ak 实时查询，并校验用户启用状态；"接口是否存在"与 invoke 端点参数化依赖接口注册/上传流程，归入第4项；接口调用次数统计归入第5项）
 - [x] 将RPC接口定义抽离到独立的Gradle module（`api` 模块，backend 为 provider、gateway 为 consumer）
 - [x] 检查接口权限，为一些接口设置管理员权限调用。提供用户申请成为管理员的机制。（接口/版本管理的写操作需 `WRITE_INTERFACE` 权限（仅 ADMIN 持有，迁移 V1_0_5）；申请流：`POST /urp/me/apply-admin` 绑定 PENDING_ADMIN 标记角色（迁移 V1_0_6），管理员经 `GET /urp/pending-admins`、`POST /urp/pending-admins/approve|reject` 审批）
-- [ ] 提供用户上传API的功能：用户的接口检查、审核等等。需要符合特定规则。（含网关侧"接口是否存在"校验与 invoke 端点按 apiId/versionId 解析路径）
+- [x] 提供用户上传API的功能：用户的接口检查、审核等等。需要符合特定规则。（`POST /interfaces/upload` 上传并校验规则（code 唯一、方法+路径不与已注册当前版本冲突、版本号/路径格式约束），初始 `enabled=false` 待审核；管理员用 `PATCH /interfaces/{id}/enabled` 审核启用、`enabled=false` 过滤查询待审列表；网关转发前经 Dubbo 校验接口已注册且可调用（未注册 404，迁移 V1_0_7 为存量 /api/name 补注册数据）；invoke 端点改为 `POST /interfaces/invoke/{apiId}` 按当前版本解析 method/path 并记录真实 apiId/versionId）
 - [ ] 提供统计分析功能，统计接口调用情况、用户调用次数情况，方便前端可视化展示图表（含网关侧接口调用次数统计埋点）
 
 ---

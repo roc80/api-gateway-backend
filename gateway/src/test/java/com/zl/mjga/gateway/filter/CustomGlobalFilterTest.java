@@ -6,8 +6,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.roc.api.dto.InvokeTargetInfo;
 import com.roc.api.dto.UserAuthInfo;
 import com.roc.contract.SignUtil;
+import com.zl.mjga.gateway.auth.service.InterfaceTargetProvider;
 import com.zl.mjga.gateway.auth.service.NonceService;
 import com.zl.mjga.gateway.auth.service.UserAuthProvider;
 import java.net.InetSocketAddress;
@@ -42,13 +44,15 @@ class CustomGlobalFilterTest {
 
     @Mock private UserAuthProvider userAuthProvider;
 
+    @Mock private InterfaceTargetProvider interfaceTargetProvider;
+
     @Mock private GatewayFilterChain chain;
 
     private CustomGlobalFilter filter;
 
     @BeforeEach
     void setUp() {
-        filter = new CustomGlobalFilter(nonceService, userAuthProvider);
+        filter = new CustomGlobalFilter(nonceService, userAuthProvider, interfaceTargetProvider);
     }
 
     @Test
@@ -57,6 +61,8 @@ class CustomGlobalFilterTest {
         when(userAuthProvider.getAuthByAccessKey(ACCESS_KEY))
                 .thenReturn(Mono.just(new UserAuthInfo("dave", SECRET_KEY, true)));
         when(nonceService.verifyAndRecordNonce(NONCE)).thenReturn(Mono.just(true));
+        when(interfaceTargetProvider.getInvokeTarget("POST", "/api/name"))
+                .thenReturn(Mono.just(new InvokeTargetInfo(1L, 1L)));
         when(chain.filter(any())).thenReturn(Mono.empty());
         MockServerWebExchange exchange = exchange(timestamp, validSign(timestamp, SECRET_KEY));
 
@@ -65,6 +71,21 @@ class CustomGlobalFilterTest {
         // mock 的 chain 不写响应：成功路径的断言点是"已转发且未设置任何错误状态"
         assertThat(exchange.getResponse().getStatusCode()).isNull();
         verify(chain).filter(any(ServerWebExchange.class));
+    }
+
+    @Test
+    void givenUnregisteredInterface_shouldReturn404() {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        when(userAuthProvider.getAuthByAccessKey(ACCESS_KEY))
+                .thenReturn(Mono.just(new UserAuthInfo("dave", SECRET_KEY, true)));
+        when(nonceService.verifyAndRecordNonce(NONCE)).thenReturn(Mono.just(true));
+        when(interfaceTargetProvider.getInvokeTarget("POST", "/api/name")).thenReturn(Mono.empty());
+        MockServerWebExchange exchange = exchange(timestamp, validSign(timestamp, SECRET_KEY));
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        verify(chain, never()).filter(any());
     }
 
     @Test

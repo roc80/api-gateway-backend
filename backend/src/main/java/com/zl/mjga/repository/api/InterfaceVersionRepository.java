@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jooq.Condition;
 import org.jooq.Configuration;
 import org.jooq.JSONB;
+import org.jooq.generated.api_gateway.tables.ApiInterface;
 import org.jooq.generated.api_gateway.tables.ApiInterfaceVersion;
 import org.jooq.generated.api_gateway.tables.daos.ApiInterfaceVersionDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,6 +147,49 @@ public class InterfaceVersionRepository extends ApiInterfaceVersionDao {
                 .where(ApiInterfaceVersion.API_INTERFACE_VERSION.DELETED.eq(false))
                 .and(ApiInterfaceVersion.API_INTERFACE_VERSION.API_ID.eq(apiId))
                 .and(ApiInterfaceVersion.API_INTERFACE_VERSION.VERSION.eq(apiVersion))
+                .fetchOneInto(
+                        org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion.class);
+    }
+
+    /** 查询可调用目标：接口启用 + 当前版本 + 允许调用 + 双方未删除；不存在返回 null（网关"接口是否存在"校验） */
+    public org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion fetchInvokeTarget(
+            String httpMethod, String path) {
+        return ctx().select(ApiInterfaceVersion.API_INTERFACE_VERSION.asterisk())
+                .from(ApiInterfaceVersion.API_INTERFACE_VERSION)
+                .join(ApiInterface.API_INTERFACE)
+                .on(
+                        ApiInterface.API_INTERFACE.ID.eq(
+                                ApiInterfaceVersion.API_INTERFACE_VERSION.API_ID))
+                .where(ApiInterfaceVersion.API_INTERFACE_VERSION.HTTP_METHOD.eq(httpMethod))
+                .and(ApiInterfaceVersion.API_INTERFACE_VERSION.PATH.eq(path))
+                .and(ApiInterfaceVersion.API_INTERFACE_VERSION.IS_CURRENT.eq(true))
+                .and(ApiInterfaceVersion.API_INTERFACE_VERSION.DELETED.eq(false))
+                .and(ApiInterfaceVersion.API_INTERFACE_VERSION.ALLOW_INVOKE.eq(true))
+                .and(ApiInterface.API_INTERFACE.DELETED.eq(false))
+                .and(ApiInterface.API_INTERFACE.ENABLED.eq(true))
+                .fetchOneInto(
+                        org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion.class);
+    }
+
+    /** 按方法+路径查当前版本（不区分启用状态，含待审核），用于上传路径查重；不存在返回 null */
+    public org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion fetchCurrentByMethodPath(
+            String httpMethod, String path) {
+        return ctx().selectFrom(ApiInterfaceVersion.API_INTERFACE_VERSION)
+                .where(ApiInterfaceVersion.API_INTERFACE_VERSION.HTTP_METHOD.eq(httpMethod))
+                .and(ApiInterfaceVersion.API_INTERFACE_VERSION.PATH.eq(path))
+                .and(ApiInterfaceVersion.API_INTERFACE_VERSION.IS_CURRENT.eq(true))
+                .and(ApiInterfaceVersion.API_INTERFACE_VERSION.DELETED.eq(false))
+                .fetchOneInto(
+                        org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion.class);
+    }
+
+    /** 查询接口的当前版本；不存在返回 null */
+    public org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion fetchCurrentByApiId(
+            Long apiId) {
+        return ctx().selectFrom(ApiInterfaceVersion.API_INTERFACE_VERSION)
+                .where(ApiInterfaceVersion.API_INTERFACE_VERSION.API_ID.eq(apiId))
+                .and(ApiInterfaceVersion.API_INTERFACE_VERSION.IS_CURRENT.eq(true))
+                .and(ApiInterfaceVersion.API_INTERFACE_VERSION.DELETED.eq(false))
                 .fetchOneInto(
                         org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion.class);
     }
