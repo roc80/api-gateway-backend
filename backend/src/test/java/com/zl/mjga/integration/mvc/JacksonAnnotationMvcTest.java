@@ -1,5 +1,6 @@
 package com.zl.mjga.integration.mvc;
 
+import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -14,6 +15,8 @@ import com.zl.mjga.dto.urp.UserRolePermissionDto;
 import com.zl.mjga.repository.PermissionRepository;
 import com.zl.mjga.repository.RoleRepository;
 import com.zl.mjga.repository.UserRepository;
+import com.zl.mjga.service.InterfaceQueryServiceImpl;
+import com.zl.mjga.service.UserAuthServiceImpl;
 import com.zl.mjga.service.UserRolePermissionService;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -29,6 +32,11 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(value = {UserRolePermissionController.class})
 @Import({HttpFireWallConfig.class})
 public class JacksonAnnotationMvcTest {
+
+    // @DubboService 会被 Dubbo 注册进 WebMvcTest 切片，mock 实现类以隔离其构造依赖
+    @MockBean private UserAuthServiceImpl userAuthServiceImpl;
+
+    @MockBean private InterfaceQueryServiceImpl interfaceQueryServiceImpl;
 
     @MockBean private UserRolePermissionService userRolePermissionService;
     @Autowired private MockMvc mockMvc;
@@ -73,6 +81,7 @@ public class JacksonAnnotationMvcTest {
                                         "/urp/users?page=0&size=5&username=%s", "7bF3mcNVTj6P6v2"))
                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].createTime").value("2023-12-02 01:01:01"));
+                // createTime 无 @JsonFormat 注解，按 Jackson 默认 ISO-8601 输出（含时区偏移）
+                .andExpect(jsonPath("$.data[0].createTime", startsWith("2023-12-02T01:01:01")));
     }
 }

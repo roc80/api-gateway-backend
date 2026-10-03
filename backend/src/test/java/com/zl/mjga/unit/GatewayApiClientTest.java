@@ -95,6 +95,22 @@ class GatewayApiClientTest {
                 .containsExactly(ACCESS_KEY, "application/json", BODY_JSON);
     }
 
+    @Test
+    void getForBody_shouldSignWithEmptyBodyAndReturnDownstreamBody() {
+        String response = client.getForBody("/api/name", ACCESS_KEY, SECRET_KEY);
+
+        // GET 无请求体：签名必须按空体计算，与网关无体请求的验签口径一致
+        assertThat(response).isEqualTo("\"echo\"");
+        assertThat(capturedSign.get())
+                .isEqualTo(
+                        SignUtil.genSignString(
+                                ACCESS_KEY,
+                                capturedNonce.get(),
+                                capturedTimestamp.get(),
+                                SECRET_KEY,
+                                ""));
+    }
+
     private void handleMockName(HttpExchange exchange) throws IOException {
         capturedAccessKey.set(exchange.getRequestHeaders().getFirst("access-key"));
         capturedNonce.set(exchange.getRequestHeaders().getFirst("nonce"));
@@ -104,7 +120,9 @@ class GatewayApiClientTest {
         capturedBody.set(
                 new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
 
-        byte[] response = "\"dave\"".getBytes(StandardCharsets.UTF_8);
+        byte[] response =
+                ("GET".equalsIgnoreCase(exchange.getRequestMethod()) ? "\"echo\"" : "\"dave\"")
+                        .getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, response.length);
         exchange.getResponseBody().write(response);

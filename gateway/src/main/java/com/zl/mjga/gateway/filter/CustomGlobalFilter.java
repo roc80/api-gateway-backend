@@ -4,6 +4,7 @@ import com.roc.api.dto.UserAuthInfo;
 import com.roc.contract.ApiResponse;
 import com.roc.contract.SignUtil;
 import com.zl.mjga.gateway.auth.constant.ApiSignConstant;
+import com.zl.mjga.gateway.auth.service.InterfaceTargetProvider;
 import com.zl.mjga.gateway.auth.service.NonceService;
 import com.zl.mjga.gateway.auth.service.UserAuthProvider;
 import com.zl.mjga.gateway.auth.util.IPUtil;
@@ -43,6 +44,8 @@ public class CustomGlobalFilter implements GlobalFilter {
     private final NonceService nonceService;
 
     private final UserAuthProvider userAuthProvider;
+
+    private final InterfaceTargetProvider interfaceTargetProvider;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -146,6 +149,13 @@ public class CustomGlobalFilter implements GlobalFilter {
                                         "[{}] Unknown accessKey: {}", requestId, headers.accessKey);
                                 return requestError(exchange, requestId, HttpStatus.FORBIDDEN);
                             }
+                            if (error instanceof UnknownInterfaceException) {
+                                log.warn(
+                                        "[{}] Interface not registered or not invokable: {}",
+                                        requestId,
+                                        error.getMessage());
+                                return requestError(exchange, requestId, HttpStatus.NOT_FOUND);
+                            }
                             log.error("[{}] Failed to authenticate caller", requestId, error);
                             return requestError(
                                     exchange, requestId, HttpStatus.SERVICE_UNAVAILABLE);
@@ -188,79 +198,84 @@ public class CustomGlobalFilter implements GlobalFilter {
                                 return requestError(exchange, requestId, HttpStatus.FORBIDDEN);
                             }
                             log.info(
-                                    "[{}] Authentication SUCCESS, forwarding to downstream",
+                                    "[{}] Authentication SUCCESS, checking invoke target",
                                     requestId);
-
-                            // 装饰响应对象，用于记录响应日志
-                            ServerHttpResponse decoratedResponse =
-                                    new ServerHttpResponseDecorator(exchange.getResponse()) {
-                                        @Override
-                                        @NonNull public Mono<Void> writeWith(
-                                                @NonNull Publisher<? extends DataBuffer> body) {
-                                            if (body
-                                                    instanceof
-                                                    Flux<? extends DataBuffer> fluxBody) {
-                                                return super.writeWith(
-                                                        fluxBody.buffer()
-                                                                .map(
-                                                                        dataBuffers -> {
-                                                                            DataBufferFactory
-                                                                                    bufferFactory =
-                                                                                            bufferFactory();
-                                                                            DataBuffer join =
-                                                                                    bufferFactory
-                                                                                            .join(
-                                                                                                    dataBuffers);
-                                                                            byte[] content =
-                                                                                    new byte
-                                                                                            [join
-                                                                                                    .readableByteCount()];
-                                                                            join.read(content);
-                                                                            DataBufferUtils.release(
-                                                                                    join);
-                                                                            String responseBody =
-                                                                                    new String(
-                                                                                            content,
-                                                                                            StandardCharsets
-                                                                                                    .UTF_8);
-                                                                            log.info(
-                                                                                    "[{}] Response:"
-                                                                                        + " status={},"
-                                                                                        + " body={}",
-                                                                                    requestId,
-                                                                                    getStatusCode(),
-                                                                                    responseBody);
-                                                                            return bufferFactory
-                                                                                    .wrap(content);
-                                                                        }));
-                                            }
-                                            return super.writeWith(body);
-                                        }
-                                    };
-
-                            if (bodyBytes != null) {
-                                // 防止下游读不到请求体
-                                ServerHttpRequest decoratedRequest =
-                                        new ServerHttpRequestDecorator(exchange.getRequest()) {
-                                            @Override
-                                            @NonNull public Flux<DataBuffer> getBody() {
-                                                return Flux.just(
-                                                        // response和request的BufferFactory共享
-                                                        exchange.getResponse()
-                                                                .bufferFactory()
-                                                                .wrap(bodyBytes));
-                                            }
-                                        };
-                                return chain.filter(
-                                        exchange.mutate()
-                                                .request(decoratedRequest)
-                                                .response(decoratedResponse)
-                                                .build());
-                            } else {
-                                return chain.filter(
-                                        exchange.mutate().response(decoratedResponse).build());
-                            }
+                            String httpMethod = exchange.getRequest().getMethod().name();
+                            String path = exchange.getRequest().getURI().getPath();
+                            // 接口存在性校验：仅转发已注册、已审核启用且允许调用的接口
+                            return interfaceTargetProvider
+                                    .getInvokeTarget(httpMethod, path)
+                                    .switchIfEmpty(
+                                            Mono.error(
+                                                    new UnknownInterfaceException(
+                                                            httpMethod + " " + path)))
+                                    .flatMap(
+                                            target ->
+                                                    forward(exchange, chain, requestId, bodyBytes));
                         });
+    }
+
+    /** 装饰请求/响应并转发下游 */
+    private Mono<Void> forward(
+            ServerWebExchange exchange,
+            GatewayFilterChain chain,
+            String requestId,
+            byte[] bodyBytes) {
+        // 装饰响应对象，用于记录响应日志
+        ServerHttpResponse decoratedResponse =
+                new ServerHttpResponseDecorator(exchange.getResponse()) {
+                    @Override
+                    @NonNull public Mono<Void> writeWith(@NonNull Publisher<? extends DataBuffer> body) {
+                        if (body instanceof Flux<? extends DataBuffer> fluxBody) {
+                            return super.writeWith(
+                                    fluxBody.buffer()
+                                            .map(
+                                                    dataBuffers -> {
+                                                        DataBufferFactory bufferFactory =
+                                                                bufferFactory();
+                                                        DataBuffer join =
+                                                                bufferFactory.join(dataBuffers);
+                                                        byte[] content =
+                                                                new byte[join.readableByteCount()];
+                                                        join.read(content);
+                                                        DataBufferUtils.release(join);
+                                                        String responseBody =
+                                                                new String(
+                                                                        content,
+                                                                        StandardCharsets.UTF_8);
+                                                        log.info(
+                                                                "[{}] Response:"
+                                                                        + " status={},"
+                                                                        + " body={}",
+                                                                requestId,
+                                                                getStatusCode(),
+                                                                responseBody);
+                                                        return bufferFactory.wrap(content);
+                                                    }));
+                        }
+                        return super.writeWith(body);
+                    }
+                };
+
+        if (bodyBytes != null) {
+            // 防止下游读不到请求体
+            ServerHttpRequest decoratedRequest =
+                    new ServerHttpRequestDecorator(exchange.getRequest()) {
+                        @Override
+                        @NonNull public Flux<DataBuffer> getBody() {
+                            return Flux.just(
+                                    // response和request的BufferFactory共享
+                                    exchange.getResponse().bufferFactory().wrap(bodyBytes));
+                        }
+                    };
+            return chain.filter(
+                    exchange.mutate()
+                            .request(decoratedRequest)
+                            .response(decoratedResponse)
+                            .build());
+        } else {
+            return chain.filter(exchange.mutate().response(decoratedResponse).build());
+        }
     }
 
     private RequestHeaders extractHeaders(ServerHttpRequest request) {
@@ -350,6 +365,13 @@ public class CustomGlobalFilter implements GlobalFilter {
     private static final class UnknownAccessKeyException extends RuntimeException {
         private UnknownAccessKeyException(String accessKey) {
             super("unknown accessKey: " + accessKey);
+        }
+    }
+
+    /** 请求对应的接口未注册、未审核启用或不允许调用 */
+    private static final class UnknownInterfaceException extends RuntimeException {
+        private UnknownInterfaceException(String target) {
+            super("interface not registered or not invokable: " + target);
         }
     }
 }

@@ -7,6 +7,7 @@ import com.zl.mjga.dto.api.InterfaceVersionCreateDto;
 import com.zl.mjga.dto.api.InterfaceVersionDto;
 import com.zl.mjga.dto.api.InterfaceVersionQueryDto;
 import com.zl.mjga.dto.api.InterfaceVersionUpdateDto;
+import com.zl.mjga.exception.BusinessException;
 import com.zl.mjga.repository.api.InterfaceRepository;
 import com.zl.mjga.repository.api.InterfaceVersionRepository;
 import jakarta.validation.Valid;
@@ -54,6 +55,15 @@ public class InterfaceVersionService {
         ApiInterfaceVersion entity = interfaceVersionCreateDto.toEntity();
         interfaceVersionRepository.insert(entity);
         return InterfaceVersionDto.fromEntity(entity);
+    }
+
+    /** 查询接口的当前版本；不存在抛业务异常（在线调用按 apiId 解析路径使用） */
+    public ApiInterfaceVersion fetchCurrentVersion(Long apiId) {
+        ApiInterfaceVersion version = interfaceVersionRepository.fetchCurrentByApiId(apiId);
+        if (version == null) {
+            throw new BusinessException(apiId + "对应的接口没有当前版本");
+        }
+        return version;
     }
 
     /** 校验数据库中的约束 */

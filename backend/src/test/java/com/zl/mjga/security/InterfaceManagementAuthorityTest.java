@@ -1,6 +1,10 @@
 package com.zl.mjga.security;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -13,14 +17,19 @@ import com.zl.mjga.config.security.UserDetailsServiceImpl;
 import com.zl.mjga.config.security.WebSecurityConfig;
 import com.zl.mjga.controller.InterfaceController;
 import com.zl.mjga.controller.UserRolePermissionController;
+import com.zl.mjga.dto.api.InterfaceDto;
 import com.zl.mjga.repository.RoleRepository;
 import com.zl.mjga.repository.UserRepository;
 import com.zl.mjga.service.InterfaceCallLogService;
+import com.zl.mjga.service.InterfaceQueryServiceImpl;
 import com.zl.mjga.service.InterfaceService;
+import com.zl.mjga.service.InterfaceVersionService;
+import com.zl.mjga.service.UserAuthServiceImpl;
 import com.zl.mjga.service.UserRolePermissionService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
+import org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -43,7 +52,14 @@ class InterfaceManagementAuthorityTest {
 
     @Autowired private MockMvc mockMvc;
 
+    // @DubboService 会被 Dubbo 注册进 WebMvcTest 切片，mock 实现类以隔离其构造依赖
+    @MockBean private UserAuthServiceImpl userAuthServiceImpl;
+
+    @MockBean private InterfaceQueryServiceImpl interfaceQueryServiceImpl;
+
     @MockBean private InterfaceService interfaceService;
+
+    @MockBean private InterfaceVersionService interfaceVersionService;
 
     @MockBean private InterfaceCallLogService interfaceCallLogService;
 
@@ -123,6 +139,73 @@ class InterfaceManagementAuthorityTest {
 
         mockMvc.perform(post("/urp/pending-admins/approve").param("userId", "2").with(csrf()))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void givenAuthenticatedUser_whenUploadInterface_shouldReturn200() throws Exception {
+        stubAuthorities();
+
+        mockMvc.perform(
+                        post("/interfaces/upload")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {
+                                          "code": "user-echo-api",
+                                          "name": "用户回显接口",
+                                          "version": "v1",
+                                          "httpMethod": "POST",
+                                          "path": "/api/user-echo"
+                                        }
+                                        """))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void givenEnabledInterface_whenInvokeByApiId_shouldCallResolvedPath() throws Exception {
+        stubAuthorities();
+        org.jooq.generated.api_gateway.tables.pojos.User me =
+                new org.jooq.generated.api_gateway.tables.pojos.User();
+        me.setId(1L);
+        me.setUsername("tester");
+        me.setAccessKey("ak-invoke");
+        me.setSecretKey("sk-invoke");
+        when(userRepository.fetchOneByUsername("tester")).thenReturn(me);
+        when(interfaceService.getInterfaceById(1L))
+                .thenReturn(
+                        new InterfaceDto(
+                                1L,
+                                "模拟用户名接口",
+                                "mock-name-api",
+                                null,
+                                true,
+                                "mock",
+                                "platform",
+                                null,
+                                null));
+        ApiInterfaceVersion currentVersion = new ApiInterfaceVersion();
+        currentVersion.setId(7L);
+        currentVersion.setApiId(1L);
+        currentVersion.setVersion("v1");
+        currentVersion.setIsCurrent(true);
+        currentVersion.setHttpMethod("POST");
+        currentVersion.setPath("/api/name");
+        when(interfaceVersionService.fetchCurrentVersion(1L)).thenReturn(currentVersion);
+        when(gatewayApiClient.postForBody(
+                        eq("/api/name"), anyString(), eq("ak-invoke"), eq("sk-invoke")))
+                .thenReturn("\"dave\"");
+
+        mockMvc.perform(
+                        post("/interfaces/invoke/1")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"username\":\"dave\"}"))
+                .andExpect(status().isOk());
+
+        // 调用日志必须记录真实的 apiId/versionId，而非写死的 1/1
+        verify(interfaceCallLogService)
+                .createInterfaceCallLog(argThat(log -> log.apiId() == 1L && log.versionId() == 7L));
     }
 
     private void stubAuthorities(String... authorities) {

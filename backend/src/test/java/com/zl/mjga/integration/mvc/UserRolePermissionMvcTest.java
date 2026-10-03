@@ -15,6 +15,8 @@ import com.zl.mjga.dto.urp.*;
 import com.zl.mjga.repository.PermissionRepository;
 import com.zl.mjga.repository.RoleRepository;
 import com.zl.mjga.repository.UserRepository;
+import com.zl.mjga.service.InterfaceQueryServiceImpl;
+import com.zl.mjga.service.UserAuthServiceImpl;
 import com.zl.mjga.service.UserRolePermissionService;
 import java.util.List;
 import org.jooq.generated.api_gateway.tables.pojos.User;
@@ -30,6 +32,11 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(value = {UserRolePermissionController.class})
 @Import({HttpFireWallConfig.class})
 class UserRolePermissionMvcTest {
+
+    // @DubboService 会被 Dubbo 注册进 WebMvcTest 切片，mock 实现类以隔离其构造依赖
+    @MockBean private UserAuthServiceImpl userAuthServiceImpl;
+
+    @MockBean private InterfaceQueryServiceImpl interfaceQueryServiceImpl;
 
     @MockBean private UserRolePermissionService userRolePermissionService;
     @Autowired private MockMvc mockMvc;

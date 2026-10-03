@@ -6,9 +6,11 @@ import com.zl.mjga.client.GatewayApiClient;
 import com.zl.mjga.dto.PageRequestDto;
 import com.zl.mjga.dto.PageResponseDto;
 import com.zl.mjga.dto.api.*;
+import com.zl.mjga.exception.BusinessException;
 import com.zl.mjga.repository.UserRepository;
 import com.zl.mjga.service.InterfaceCallLogService;
 import com.zl.mjga.service.InterfaceService;
+import com.zl.mjga.service.InterfaceVersionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -17,6 +19,7 @@ import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion;
 import org.jooq.generated.api_gateway.tables.pojos.User;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 public class InterfaceController {
 
     private final InterfaceService interfaceService;
+    private final InterfaceVersionService interfaceVersionService;
     private final UserRepository userRepository;
     private final InterfaceCallLogService interfaceCallLogService;
     private final GatewayApiClient gatewayApiClient;
@@ -110,23 +114,54 @@ public class InterfaceController {
         interfaceService.batchDeleteInterfaces(batchDeleteDto.ids());
     }
 
-    @Operation(summary = "模拟API", description = "传输用户，返回该用户的名称")
-    @PostMapping("/invoke/mock/name")
+    /** 用户上传API（初始禁用，待管理员审核启用） */
+    @Operation(summary = "上传API", description = "注册用户自己的API定义，提交后为待审核状态，管理员审核通过后启用")
+    @PostMapping("/upload")
+    public InterfaceDto upload(
+            @Parameter(description = "上传的接口定义") @Valid @RequestBody InterfaceUploadDto uploadDto,
+            Principal principal) {
+        return interfaceService.uploadInterface(uploadDto, principal.getName());
+    }
+
+    /** 在线调用：按 apiId 解析当前版本的 method/path，经网关以当前用户身份调用 */
+    @Operation(summary = "在线调用API", description = "按接口ID解析当前版本路径并经网关调用，记录调用日志")
+    @PostMapping("/invoke/{apiId}")
     public Object invoke(
-            @Parameter(description = "模拟用户") @RequestBody com.roc.contract.User paramUser,
+            @Parameter(description = "接口ID", required = true)
+                    @PathVariable
+                    @Positive(message = "接口ID必须为正整数") Long apiId,
+            @RequestBody(required = false) Object body,
             Principal principal) {
         String name = principal.getName();
         User loginUser = userRepository.fetchOneByUsername(name);
-        String bodyJson = toJson(paramUser);
+        InterfaceDto interfaceDto = interfaceService.getInterfaceById(apiId);
+        if (!Boolean.TRUE.equals(interfaceDto.enabled())) {
+            throw new BusinessException("接口未启用，无法调用: " + apiId);
+        }
+        ApiInterfaceVersion currentVersion = interfaceVersionService.fetchCurrentVersion(apiId);
+        String bodyJson = body == null ? "" : toJson(body);
+        long startTime = System.currentTimeMillis();
         String response =
-                gatewayApiClient.postForBody(
-                        "/api/name", bodyJson, loginUser.getAccessKey(), loginUser.getSecretKey());
-
-        // todo@lp 模拟数据跑通流程，这里接口调用返回数据结构需要重新定义
-        // todo@lp 接口路径不能写死，需要传过来 apiId versionId
+                "GET".equalsIgnoreCase(currentVersion.getHttpMethod())
+                        ? gatewayApiClient.getForBody(
+                                currentVersion.getPath(),
+                                loginUser.getAccessKey(),
+                                loginUser.getSecretKey())
+                        : gatewayApiClient.postForBody(
+                                currentVersion.getPath(),
+                                bodyJson,
+                                loginUser.getAccessKey(),
+                                loginUser.getSecretKey());
         InterfaceCallLogCreateDto interfaceCallLogCreateDto =
                 new InterfaceCallLogCreateDto(
-                        1L, 1L, loginUser.getUsername(), bodyJson, response, 200, true, 20);
+                        apiId,
+                        currentVersion.getId(),
+                        loginUser.getUsername(),
+                        bodyJson,
+                        response,
+                        200,
+                        true,
+                        (int) (System.currentTimeMillis() - startTime));
         InterfaceCallLogDto interfaceCallLog =
                 interfaceCallLogService.createInterfaceCallLog(interfaceCallLogCreateDto);
         if (interfaceCallLog == null) {

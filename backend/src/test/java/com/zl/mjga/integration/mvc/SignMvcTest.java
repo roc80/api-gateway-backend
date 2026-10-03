@@ -9,8 +9,9 @@ import com.zl.mjga.config.security.HttpFireWallConfig;
 import com.zl.mjga.config.security.Jwt;
 import com.zl.mjga.controller.SignController;
 import com.zl.mjga.dto.sign.SignInDto;
-import com.zl.mjga.repository.UserRepository;
+import com.zl.mjga.service.InterfaceQueryServiceImpl;
 import com.zl.mjga.service.SignService;
+import com.zl.mjga.service.UserAuthServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,12 +25,14 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({HttpFireWallConfig.class})
 class SignMvcTest {
 
+    // @DubboService 会被 Dubbo 注册进 WebMvcTest 切片，mock 实现类以隔离其构造依赖
+    @MockBean private UserAuthServiceImpl userAuthServiceImpl;
+
+    @MockBean private InterfaceQueryServiceImpl interfaceQueryServiceImpl;
+
     @MockBean private SignService signService;
 
     @MockBean private Jwt jwt;
-
-    // UserAuthServiceImpl(@DubboService) 会被 Dubbo 注册进切片，需要 mock 其构造依赖
-    @MockBean private UserRepository userRepository;
 
     @Autowired private MockMvc mockMvc;
 
