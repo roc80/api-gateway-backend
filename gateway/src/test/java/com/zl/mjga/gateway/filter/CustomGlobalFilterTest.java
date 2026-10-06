@@ -2,6 +2,7 @@ package com.zl.mjga.gateway.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.roc.api.dto.InvokeTargetInfo;
 import com.roc.api.dto.UserAuthInfo;
 import com.roc.contract.SignUtil;
+import com.zl.mjga.gateway.auth.service.InterfaceCallReporter;
 import com.zl.mjga.gateway.auth.service.InterfaceTargetProvider;
 import com.zl.mjga.gateway.auth.service.NonceService;
 import com.zl.mjga.gateway.auth.service.UserAuthProvider;
@@ -46,13 +48,20 @@ class CustomGlobalFilterTest {
 
     @Mock private InterfaceTargetProvider interfaceTargetProvider;
 
+    @Mock private InterfaceCallReporter interfaceCallReporter;
+
     @Mock private GatewayFilterChain chain;
 
     private CustomGlobalFilter filter;
 
     @BeforeEach
     void setUp() {
-        filter = new CustomGlobalFilter(nonceService, userAuthProvider, interfaceTargetProvider);
+        filter =
+                new CustomGlobalFilter(
+                        nonceService,
+                        userAuthProvider,
+                        interfaceTargetProvider,
+                        interfaceCallReporter);
     }
 
     @Test
@@ -64,6 +73,7 @@ class CustomGlobalFilterTest {
         when(interfaceTargetProvider.getInvokeTarget("POST", "/api/name"))
                 .thenReturn(Mono.just(new InvokeTargetInfo(1L, 1L)));
         when(chain.filter(any())).thenReturn(Mono.empty());
+        when(interfaceCallReporter.report(any())).thenReturn(Mono.empty());
         MockServerWebExchange exchange = exchange(timestamp, validSign(timestamp, SECRET_KEY));
 
         filter.filter(exchange, chain).block();
@@ -71,6 +81,33 @@ class CustomGlobalFilterTest {
         // mock 的 chain 不写响应：成功路径的断言点是"已转发且未设置任何错误状态"
         assertThat(exchange.getResponse().getStatusCode()).isNull();
         verify(chain).filter(any(ServerWebExchange.class));
+    }
+
+    @Test
+    void givenForwardedCall_shouldReportCallMetricWithTargetAndCaller() {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        when(userAuthProvider.getAuthByAccessKey(ACCESS_KEY))
+                .thenReturn(Mono.just(new UserAuthInfo("dave", SECRET_KEY, true)));
+        when(nonceService.verifyAndRecordNonce(NONCE)).thenReturn(Mono.just(true));
+        when(interfaceTargetProvider.getInvokeTarget("POST", "/api/name"))
+                .thenReturn(Mono.just(new InvokeTargetInfo(3L, 7L)));
+        when(chain.filter(any())).thenReturn(Mono.empty());
+        when(interfaceCallReporter.report(any())).thenReturn(Mono.empty());
+        MockServerWebExchange exchange = exchange(timestamp, validSign(timestamp, SECRET_KEY));
+
+        filter.filter(exchange, chain).block();
+
+        // 转发结束后必须上报埋点：调用方、目标接口与请求体来自验签链路解析结果
+        verify(interfaceCallReporter)
+                .report(
+                        argThat(
+                                report ->
+                                        report.getApiId() == 3L
+                                                && report.getVersionId() == 7L
+                                                && "dave".equals(report.getCaller())
+                                                && BODY_JSON.equals(report.getRequestData())
+                                                && report.getDurationMs() != null
+                                                && report.getDurationMs() >= 0));
     }
 
     @Test
@@ -86,6 +123,8 @@ class CustomGlobalFilterTest {
 
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         verify(chain, never()).filter(any());
+        // 未注册接口被拒绝转发，不产生调用埋点
+        verify(interfaceCallReporter, never()).report(any());
     }
 
     @Test

@@ -136,12 +136,13 @@ public class UserRolePermissionDALTest extends AbstractDataAccessLayerTest {
         assertThat(records.size()).isEqualTo(2);
         assertThat(records.get(0).get(USER.USERNAME)).isEqualTo("testUserB");
         assertThat(records.get(1).get(USER.USERNAME)).isEqualTo("testUserA");
-        assertThat(records.get(0).get("roles", List.class).size()).isEqualTo(2);
+        // testUserB 仅绑定 testRoleB；testUserA 仅绑定 testRoleA（其下挂 2 个权限）
+        assertThat(records.get(0).get("roles", List.class)).hasSize(1);
+        assertThat(records.get(1).get("roles", List.class)).hasSize(1);
         List<UserRolePermissionDto> result = records.into(UserRolePermissionDto.class);
-        assertThat(result.get(0).getRoles().get(0).getName()).isEqualTo("testRoleA");
-        assertThat(result.get(0).getRoles().get(1).getName()).isEqualTo("testRoleB");
-        assertThat(result.get(0).getRoles().get(0).getPermissions().get(0).getName())
-                .isEqualTo("testPermissionA");
+        assertThat(result.get(0).getRoles().get(0).getName()).isEqualTo("testRoleB");
+        assertThat(result.get(1).getRoles().get(0).getName()).isEqualTo("testRoleA");
+        assertThat(result.get(1).getRoles().get(0).getPermissions()).hasSize(2);
     }
 
     @Test

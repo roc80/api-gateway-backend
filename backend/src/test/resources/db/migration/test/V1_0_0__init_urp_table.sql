@@ -6,7 +6,9 @@ CREATE TABLE api_gateway.user (
                            avatar VARCHAR,
                            create_time TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
                            password VARCHAR NOT NULL,
-                           enable BOOLEAN NOT NULL DEFAULT TRUE
+                           enable BOOLEAN NOT NULL DEFAULT TRUE,
+                           access_key VARCHAR(1024),
+                           secret_key VARCHAR(1024)
 );
 
 CREATE TABLE api_gateway.permission (

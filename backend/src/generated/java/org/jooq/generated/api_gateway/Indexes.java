@@ -7,7 +7,7 @@ package org.jooq.generated.api_gateway;
 import org.jooq.Index;
 import org.jooq.OrderField;
 import org.jooq.generated.api_gateway.tables.ApiInterface;
-import org.jooq.generated.api_gateway.tables.FlywaySchemaHistory;
+import org.jooq.generated.api_gateway.tables.ApiInterfaceCallLog;
 import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
@@ -22,6 +22,6 @@ public class Indexes {
     // INDEX definitions
     // -------------------------------------------------------------------------
 
-    public static final Index FLYWAY_SCHEMA_HISTORY_S_IDX = Internal.createIndex(DSL.name("flyway_schema_history_s_idx"), FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY, new OrderField[] { FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.SUCCESS }, false);
     public static final Index IDX_API_INTERFACE_ACTIVE = Internal.createIndex(DSL.name("idx_api_interface_active"), ApiInterface.API_INTERFACE, new OrderField[] { ApiInterface.API_INTERFACE.ENABLED }, false);
+    public static final Index IDX_API_INTERFACE_CALL_LOG_CREATE_TIME = Internal.createIndex(DSL.name("idx_api_interface_call_log_create_time"), ApiInterfaceCallLog.API_INTERFACE_CALL_LOG, new OrderField[] { ApiInterfaceCallLog.API_INTERFACE_CALL_LOG.CREATE_TIME }, false);
 }

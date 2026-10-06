@@ -8,7 +8,6 @@ import com.zl.mjga.dto.PageResponseDto;
 import com.zl.mjga.dto.api.*;
 import com.zl.mjga.exception.BusinessException;
 import com.zl.mjga.repository.UserRepository;
-import com.zl.mjga.service.InterfaceCallLogService;
 import com.zl.mjga.service.InterfaceService;
 import com.zl.mjga.service.InterfaceVersionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +17,6 @@ import jakarta.validation.constraints.Positive;
 import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.api_gateway.tables.pojos.ApiInterfaceVersion;
 import org.jooq.generated.api_gateway.tables.pojos.User;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,13 +33,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/interfaces")
 @RequiredArgsConstructor
 @Validated
-@Slf4j
 public class InterfaceController {
 
     private final InterfaceService interfaceService;
     private final InterfaceVersionService interfaceVersionService;
     private final UserRepository userRepository;
-    private final InterfaceCallLogService interfaceCallLogService;
     private final GatewayApiClient gatewayApiClient;
     private final ObjectMapper objectMapper;
 
@@ -123,8 +119,8 @@ public class InterfaceController {
         return interfaceService.uploadInterface(uploadDto, principal.getName());
     }
 
-    /** 在线调用：按 apiId 解析当前版本的 method/path，经网关以当前用户身份调用 */
-    @Operation(summary = "在线调用API", description = "按接口ID解析当前版本路径并经网关调用，记录调用日志")
+    /** 在线调用：按 apiId 解析当前版本的 method/path，经网关以当前用户身份调用；调用日志由网关侧埋点统一记录 */
+    @Operation(summary = "在线调用API", description = "按接口ID解析当前版本路径并经网关调用，调用日志由网关埋点统一落库")
     @PostMapping("/invoke/{apiId}")
     public Object invoke(
             @Parameter(description = "接口ID", required = true)
@@ -140,35 +136,16 @@ public class InterfaceController {
         }
         ApiInterfaceVersion currentVersion = interfaceVersionService.fetchCurrentVersion(apiId);
         String bodyJson = body == null ? "" : toJson(body);
-        long startTime = System.currentTimeMillis();
-        String response =
-                "GET".equalsIgnoreCase(currentVersion.getHttpMethod())
-                        ? gatewayApiClient.getForBody(
-                                currentVersion.getPath(),
-                                loginUser.getAccessKey(),
-                                loginUser.getSecretKey())
-                        : gatewayApiClient.postForBody(
-                                currentVersion.getPath(),
-                                bodyJson,
-                                loginUser.getAccessKey(),
-                                loginUser.getSecretKey());
-        InterfaceCallLogCreateDto interfaceCallLogCreateDto =
-                new InterfaceCallLogCreateDto(
-                        apiId,
-                        currentVersion.getId(),
-                        loginUser.getUsername(),
+        return "GET".equalsIgnoreCase(currentVersion.getHttpMethod())
+                ? gatewayApiClient.getForBody(
+                        currentVersion.getPath(),
+                        loginUser.getAccessKey(),
+                        loginUser.getSecretKey())
+                : gatewayApiClient.postForBody(
+                        currentVersion.getPath(),
                         bodyJson,
-                        response,
-                        200,
-                        true,
-                        (int) (System.currentTimeMillis() - startTime));
-        InterfaceCallLogDto interfaceCallLog =
-                interfaceCallLogService.createInterfaceCallLog(interfaceCallLogCreateDto);
-        if (interfaceCallLog == null) {
-            log.error("create interface call log failed: {}", interfaceCallLogCreateDto);
-        }
-
-        return response;
+                        loginUser.getAccessKey(),
+                        loginUser.getSecretKey());
     }
 
     private String toJson(Object value) {

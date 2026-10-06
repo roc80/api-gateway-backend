@@ -15,6 +15,7 @@ import java.util.List;
 import org.jooq.generated.api_gateway.tables.pojos.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -38,6 +39,7 @@ public class SignUnitTest {
         stubUser.setId(1L);
         stubUser.setUsername("testUserName");
         stubUser.setPassword("GjFH2fzRB2y7DDrO");
+        stubUser.setEnable(true);
         when(userRepository.fetchOneByUsername("testUserName")).thenReturn(stubUser);
         when(passwordEncoder.matches("GjFH2fzRB2y7DDrO", "GjFH2fzRB2y7DDrO")).thenReturn(true);
         // action
@@ -62,6 +64,7 @@ public class SignUnitTest {
         stubUser.setId(1L);
         stubUser.setUsername("testUserName");
         stubUser.setPassword("GjFH2fzRB2y7DDrO");
+        stubUser.setEnable(true);
         when(userRepository.fetchOneByUsername("testUserName")).thenReturn(stubUser);
         when(passwordEncoder.matches("InvalidPassword", "GjFH2fzRB2y7DDrO")).thenReturn(false);
         // action
@@ -90,9 +93,6 @@ public class SignUnitTest {
         SignUpDto signUpDto = new SignUpDto();
         signUpDto.setUsername("newUser");
         signUpDto.setPassword("B0pjKYnIK67hz4");
-        User stubUser = new User();
-        stubUser.setUsername("newUser");
-        stubUser.setPassword("encodedB0pjKYnIK67hz4");
         User insertUser = new User();
         insertUser.setId(1L);
         insertUser.setUsername("newUser");
@@ -102,7 +102,14 @@ public class SignUnitTest {
         when(userRepository.fetchOneByUsername("newUser")).thenReturn(insertUser);
         when(passwordEncoder.encode("B0pjKYnIK67hz4")).thenReturn("encodedB0pjKYnIK67hz4");
         signService.signUp(signUpDto);
-        verify(userRepository, times(1)).insert(stubUser);
+        // ak/sk 由注册流程随机生成，无法整对象断言，按字段校验
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository, times(1)).insert(userCaptor.capture());
+        User inserted = userCaptor.getValue();
+        assertThat(inserted.getUsername()).isEqualTo("newUser");
+        assertThat(inserted.getPassword()).isEqualTo("encodedB0pjKYnIK67hz4");
+        assertThat(inserted.getAccessKey()).isNotBlank();
+        assertThat(inserted.getSecretKey()).isNotBlank();
         verify(userRolePermissionService, times(1))
                 .bindRoleModuleToUser(insertUser.getId(), List.of(ERole.GENERAL));
     }

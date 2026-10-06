@@ -2,8 +2,8 @@ package com.zl.mjga.security;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -21,6 +21,7 @@ import com.zl.mjga.dto.api.InterfaceDto;
 import com.zl.mjga.repository.RoleRepository;
 import com.zl.mjga.repository.UserRepository;
 import com.zl.mjga.service.InterfaceCallLogService;
+import com.zl.mjga.service.InterfaceCallReportServiceImpl;
 import com.zl.mjga.service.InterfaceQueryServiceImpl;
 import com.zl.mjga.service.InterfaceService;
 import com.zl.mjga.service.InterfaceVersionService;
@@ -56,6 +57,8 @@ class InterfaceManagementAuthorityTest {
     @MockBean private UserAuthServiceImpl userAuthServiceImpl;
 
     @MockBean private InterfaceQueryServiceImpl interfaceQueryServiceImpl;
+
+    @MockBean private InterfaceCallReportServiceImpl interfaceCallReportService;
 
     @MockBean private InterfaceService interfaceService;
 
@@ -203,9 +206,8 @@ class InterfaceManagementAuthorityTest {
                                 .content("{\"username\":\"dave\"}"))
                 .andExpect(status().isOk());
 
-        // 调用日志必须记录真实的 apiId/versionId，而非写死的 1/1
-        verify(interfaceCallLogService)
-                .createInterfaceCallLog(argThat(log -> log.apiId() == 1L && log.versionId() == 7L));
+        // 调用日志改由网关侧埋点统一落库，backend invoke 端点不再重复写日志
+        verify(interfaceCallLogService, never()).createInterfaceCallLog(any());
     }
 
     private void stubAuthorities(String... authorities) {

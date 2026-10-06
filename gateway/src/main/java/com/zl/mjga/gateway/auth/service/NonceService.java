@@ -32,9 +32,7 @@ public class NonceService {
             return 1
             """;
 
-    /**
-     * 校验随机数，防重放
-     */
+    /** 校验随机数，防重放 */
     public Mono<Boolean> verifyAndRecordNonce(String nonce) {
         if (nonce == null || nonce.isEmpty()) {
             log.warn("Nonce is null or empty");

@@ -9,6 +9,7 @@ import com.zl.mjga.config.security.HttpFireWallConfig;
 import com.zl.mjga.config.security.Jwt;
 import com.zl.mjga.controller.SignController;
 import com.zl.mjga.dto.sign.SignInDto;
+import com.zl.mjga.service.InterfaceCallReportServiceImpl;
 import com.zl.mjga.service.InterfaceQueryServiceImpl;
 import com.zl.mjga.service.SignService;
 import com.zl.mjga.service.UserAuthServiceImpl;
@@ -29,6 +30,8 @@ class SignMvcTest {
     @MockBean private UserAuthServiceImpl userAuthServiceImpl;
 
     @MockBean private InterfaceQueryServiceImpl interfaceQueryServiceImpl;
+
+    @MockBean private InterfaceCallReportServiceImpl interfaceCallReportService;
 
     @MockBean private SignService signService;
 

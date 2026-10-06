@@ -16,6 +16,7 @@ import com.zl.mjga.dto.sign.SignInDto;
 import com.zl.mjga.model.urp.EPermission;
 import com.zl.mjga.repository.RoleRepository;
 import com.zl.mjga.repository.UserRepository;
+import com.zl.mjga.service.InterfaceCallReportServiceImpl;
 import com.zl.mjga.service.InterfaceQueryServiceImpl;
 import com.zl.mjga.service.SignService;
 import com.zl.mjga.service.UserAuthServiceImpl;
@@ -43,6 +44,8 @@ public class AuthenticationAndAuthorityTest {
     @MockBean private UserAuthServiceImpl userAuthServiceImpl;
 
     @MockBean private InterfaceQueryServiceImpl interfaceQueryServiceImpl;
+
+    @MockBean private InterfaceCallReportServiceImpl interfaceCallReportService;
 
     @MockBean private SignService signService;
 
