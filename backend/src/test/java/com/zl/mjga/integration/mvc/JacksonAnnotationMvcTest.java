@@ -15,6 +15,7 @@ import com.zl.mjga.dto.urp.UserRolePermissionDto;
 import com.zl.mjga.repository.PermissionRepository;
 import com.zl.mjga.repository.RoleRepository;
 import com.zl.mjga.repository.UserRepository;
+import com.zl.mjga.service.InterfaceCallReportServiceImpl;
 import com.zl.mjga.service.InterfaceQueryServiceImpl;
 import com.zl.mjga.service.UserAuthServiceImpl;
 import com.zl.mjga.service.UserRolePermissionService;
@@ -37,6 +38,8 @@ public class JacksonAnnotationMvcTest {
     @MockBean private UserAuthServiceImpl userAuthServiceImpl;
 
     @MockBean private InterfaceQueryServiceImpl interfaceQueryServiceImpl;
+
+    @MockBean private InterfaceCallReportServiceImpl interfaceCallReportService;
 
     @MockBean private UserRolePermissionService userRolePermissionService;
     @Autowired private MockMvc mockMvc;

@@ -1,9 +1,12 @@
 package com.zl.mjga.gateway.filter;
 
+import com.roc.api.dto.InterfaceCallReport;
+import com.roc.api.dto.InvokeTargetInfo;
 import com.roc.api.dto.UserAuthInfo;
 import com.roc.contract.ApiResponse;
 import com.roc.contract.SignUtil;
 import com.zl.mjga.gateway.auth.constant.ApiSignConstant;
+import com.zl.mjga.gateway.auth.service.InterfaceCallReporter;
 import com.zl.mjga.gateway.auth.service.InterfaceTargetProvider;
 import com.zl.mjga.gateway.auth.service.NonceService;
 import com.zl.mjga.gateway.auth.service.UserAuthProvider;
@@ -11,6 +14,7 @@ import com.zl.mjga.gateway.auth.util.IPUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +27,7 @@ import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -41,16 +46,22 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class CustomGlobalFilter implements GlobalFilter {
 
+    /** 网关接收请求的时间戳属性键，用于埋点计算耗时 */
+    private static final String START_TIME_ATTR = "gatewayStartTime";
+
     private final NonceService nonceService;
 
     private final UserAuthProvider userAuthProvider;
 
     private final InterfaceTargetProvider interfaceTargetProvider;
 
+    private final InterfaceCallReporter interfaceCallReporter;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String requestId = java.util.UUID.randomUUID().toString().substring(0, 8);
         exchange.getAttributes().put("requestId", requestId);
+        exchange.getAttributes().put(START_TIME_ATTR, System.currentTimeMillis());
 
         log.info("[{}] >>> CustomGlobalFilter.filter START", requestId);
         ServerHttpRequest originalRequest = exchange.getRequest();
@@ -211,17 +222,23 @@ public class CustomGlobalFilter implements GlobalFilter {
                                                             httpMethod + " " + path)))
                                     .flatMap(
                                             target ->
-                                                    forward(exchange, chain, requestId, bodyBytes));
+                                                    forward(
+                                                            exchange, chain, requestId, bodyBytes,
+                                                            auth, target, bodyJson));
                         });
     }
 
-    /** 装饰请求/响应并转发下游 */
+    /** 装饰请求/响应并转发下游，响应完成后异步上报调用埋点 */
     private Mono<Void> forward(
             ServerWebExchange exchange,
             GatewayFilterChain chain,
             String requestId,
-            byte[] bodyBytes) {
-        // 装饰响应对象，用于记录响应日志
+            byte[] bodyBytes,
+            UserAuthInfo callerAuth,
+            InvokeTargetInfo target,
+            String bodyJson) {
+        // 装饰响应对象，用于记录响应日志；同时捕获响应体供埋点上报
+        AtomicReference<String> capturedResponseBody = new AtomicReference<>();
         ServerHttpResponse decoratedResponse =
                 new ServerHttpResponseDecorator(exchange.getResponse()) {
                     @Override
@@ -243,6 +260,7 @@ public class CustomGlobalFilter implements GlobalFilter {
                                                                 new String(
                                                                         content,
                                                                         StandardCharsets.UTF_8);
+                                                        capturedResponseBody.set(responseBody);
                                                         log.info(
                                                                 "[{}] Response:"
                                                                         + " status={},"
@@ -257,25 +275,70 @@ public class CustomGlobalFilter implements GlobalFilter {
                     }
                 };
 
-        if (bodyBytes != null) {
-            // 防止下游读不到请求体
-            ServerHttpRequest decoratedRequest =
-                    new ServerHttpRequestDecorator(exchange.getRequest()) {
-                        @Override
-                        @NonNull public Flux<DataBuffer> getBody() {
-                            return Flux.just(
-                                    // response和request的BufferFactory共享
-                                    exchange.getResponse().bufferFactory().wrap(bodyBytes));
-                        }
-                    };
-            return chain.filter(
-                    exchange.mutate()
-                            .request(decoratedRequest)
-                            .response(decoratedResponse)
-                            .build());
-        } else {
-            return chain.filter(exchange.mutate().response(decoratedResponse).build());
-        }
+        Mono<Void> forwardMono =
+                (bodyBytes != null)
+                        ? chain.filter(
+                                exchange.mutate()
+                                        .request(decoratedRequest(exchange, bodyBytes))
+                                        .response(decoratedResponse)
+                                        .build())
+                        : chain.filter(exchange.mutate().response(decoratedResponse).build());
+        // 网关侧调用埋点：转发结束后（成功/失败/取消均计入）异步上报真实状态码与耗时
+        return forwardMono.doFinally(
+                signal ->
+                        reportCall(
+                                exchange,
+                                requestId,
+                                callerAuth,
+                                target,
+                                bodyJson,
+                                capturedResponseBody.get()));
+    }
+
+    /** 装饰请求体，防止下游读不到请求体 */
+    private ServerHttpRequest decoratedRequest(ServerWebExchange exchange, byte[] bodyBytes) {
+        return new ServerHttpRequestDecorator(exchange.getRequest()) {
+            @Override
+            @NonNull public Flux<DataBuffer> getBody() {
+                return Flux.just(
+                        // response和request的BufferFactory共享
+                        exchange.getResponse().bufferFactory().wrap(bodyBytes));
+            }
+        };
+    }
+
+    /** 构造并异步上报一次接口调用埋点，失败不影响响应 */
+    private void reportCall(
+            ServerWebExchange exchange,
+            String requestId,
+            UserAuthInfo callerAuth,
+            InvokeTargetInfo target,
+            String bodyJson,
+            String responseBody) {
+        Object startTimeAttr = exchange.getAttributes().get(START_TIME_ATTR);
+        long startTime = startTimeAttr instanceof Long value ? value : System.currentTimeMillis();
+        HttpStatusCode status = exchange.getResponse().getStatusCode();
+        Integer statusCode = status != null ? status.value() : null;
+        Boolean success = statusCode != null ? statusCode >= 200 && statusCode < 300 : null;
+        int durationMs = (int) Math.max(0, System.currentTimeMillis() - startTime);
+        InterfaceCallReport report =
+                new InterfaceCallReport(
+                        target.getApiId(),
+                        target.getVersionId(),
+                        callerAuth.getUsername(),
+                        bodyJson,
+                        responseBody,
+                        statusCode,
+                        success,
+                        durationMs);
+        log.info(
+                "[{}] Reporting interface call: apiId={}, caller={}, status={}, durationMs={}",
+                requestId,
+                report.getApiId(),
+                report.getCaller(),
+                statusCode,
+                durationMs);
+        interfaceCallReporter.report(report).subscribe();
     }
 
     private RequestHeaders extractHeaders(ServerHttpRequest request) {

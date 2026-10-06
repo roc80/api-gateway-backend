@@ -5,7 +5,7 @@ package org.jooq.generated.api_gateway.tables.pojos;
 
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 
 /**
@@ -23,7 +23,7 @@ public class FlywaySchemaHistory implements Serializable {
     private String script;
     private Integer checksum;
     private String installedBy;
-    private LocalDateTime installedOn;
+    private OffsetDateTime installedOn;
     private Integer executionTime;
     private Boolean success;
 
@@ -50,7 +50,7 @@ public class FlywaySchemaHistory implements Serializable {
         String script,
         Integer checksum,
         String installedBy,
-        LocalDateTime installedOn,
+        OffsetDateTime installedOn,
         Integer executionTime,
         Boolean success
     ) {
@@ -174,14 +174,14 @@ public class FlywaySchemaHistory implements Serializable {
     /**
      * Getter for <code>api_gateway.flyway_schema_history.installed_on</code>.
      */
-    public LocalDateTime getInstalledOn() {
+    public OffsetDateTime getInstalledOn() {
         return this.installedOn;
     }
 
     /**
      * Setter for <code>api_gateway.flyway_schema_history.installed_on</code>.
      */
-    public FlywaySchemaHistory setInstalledOn(LocalDateTime installedOn) {
+    public FlywaySchemaHistory setInstalledOn(OffsetDateTime installedOn) {
         this.installedOn = installedOn;
         return this;
     }

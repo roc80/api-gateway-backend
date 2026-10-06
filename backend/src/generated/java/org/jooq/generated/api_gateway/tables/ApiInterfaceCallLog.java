@@ -5,11 +5,14 @@ package org.jooq.generated.api_gateway.tables;
 
 
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.Identity;
+import org.jooq.Index;
 import org.jooq.JSONB;
 import org.jooq.Name;
 import org.jooq.PlainSQL;
@@ -23,6 +26,7 @@ import org.jooq.TableField;
 import org.jooq.TableOptions;
 import org.jooq.UniqueKey;
 import org.jooq.generated.api_gateway.ApiGateway;
+import org.jooq.generated.api_gateway.Indexes;
 import org.jooq.generated.api_gateway.Keys;
 import org.jooq.generated.api_gateway.tables.records.ApiInterfaceCallLogRecord;
 import org.jooq.impl.DSL;
@@ -135,6 +139,11 @@ public class ApiInterfaceCallLog extends TableImpl<ApiInterfaceCallLogRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : ApiGateway.API_GATEWAY;
+    }
+
+    @Override
+    public List<Index> getIndexes() {
+        return Arrays.asList(Indexes.IDX_API_INTERFACE_CALL_LOG_CREATE_TIME);
     }
 
     @Override
